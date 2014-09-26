@@ -31,8 +31,58 @@ func NewClient(token string) *Client {
 	return &Client{token: token, httpClient: httpClient}
 }
 
+func (c *Client) GetDevices() (map[string]interface{}, int, error) {
+	req, err := http.NewRequest("GET", apiEndpoints["devices"], nil)
+	if err != nil {
+		log.Println(err)
+		return nil, -1, err
+	}
+	req.SetBasicAuth(c.token, "")
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		log.Println(err)
+		return nil, -1, err
+	}
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return nil, -1, err
+	}
+	return result, resp.StatusCode, nil
+}
+
 func (c *Client) GetContacts() (map[string]interface{}, int, error) {
 	req, err := http.NewRequest("GET", apiEndpoints["contacts"], nil)
+	if err != nil {
+		log.Println(err)
+		return nil, -1, err
+	}
+	req.SetBasicAuth(c.token, "")
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		log.Println(err)
+		return nil, -1, err
+	}
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return nil, -1, err
+	}
+	return result, resp.StatusCode, nil
+}
+
+func (c *Client) CreateDevice(params Params) (map[string]interface{}, int, error) {
+	jsonified_params, err := json.Marshal(params)
+	if err != nil {
+		return nil, -1, err
+	}
+	req, err := http.NewRequest("POST", apiEndpoints["devices"], bytes.NewBuffer(jsonified_params))
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
@@ -81,6 +131,39 @@ func (c *Client) CreateContact(params Params) (map[string]interface{}, int, erro
 	return result, resp.StatusCode, nil
 }
 
+func (c *Client) UpdateDevice(params Params) (map[string]interface{}, int, error) {
+	id, ok := params["iden"]
+	if !ok {
+		return nil, -1, errors.New("No id")
+	}
+	delete(params, "iden")
+	endpoint := fmt.Sprintf(apiEndpoints["devices"]+"/%s", id)
+	jsonified_params, err := json.Marshal(params)
+	if err != nil {
+		return nil, -1, err
+	}
+	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonified_params))
+	if err != nil {
+		log.Println(err)
+		return nil, -1, err
+	}
+	req.SetBasicAuth(c.token, "")
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		log.Println(err)
+		return nil, -1, err
+	}
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return nil, -1, err
+	}
+	return result, resp.StatusCode, nil
+}
+
 func (c *Client) UpdateContact(params Params) (map[string]interface{}, int, error) {
 	id, ok := params["iden"]
 	if !ok {
@@ -93,6 +176,35 @@ func (c *Client) UpdateContact(params Params) (map[string]interface{}, int, erro
 		return nil, -1, err
 	}
 	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonified_params))
+	if err != nil {
+		log.Println(err)
+		return nil, -1, err
+	}
+	req.SetBasicAuth(c.token, "")
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		log.Println(err)
+		return nil, -1, err
+	}
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return nil, -1, err
+	}
+	return result, resp.StatusCode, nil
+}
+
+func (c *Client) DeleteDevice(params Params) (map[string]interface{}, int, error) {
+	id, ok := params["iden"]
+	if !ok {
+		return nil, -1, errors.New("No id")
+	}
+	delete(params, "iden")
+	endpoint := fmt.Sprintf(apiEndpoints["devices"]+"/%s", id)
+	req, err := http.NewRequest("DELETE", endpoint, nil)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
