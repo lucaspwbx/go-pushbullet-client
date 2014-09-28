@@ -67,7 +67,7 @@ func (c *Client) GetContacts() (Contacts, error) {
 
 func (c *Client) GetPushes() (Pushes, error) {
 	//TODO add params and allow modified_after
-	body, _, err := c.do("GET", apiEndpoints["pushess"], nil)
+	body, _, err := c.do("GET", apiEndpoints["pushes"], nil)
 	if err != nil {
 		log.Println(err)
 		return Pushes{}, err
@@ -78,6 +78,21 @@ func (c *Client) GetPushes() (Pushes, error) {
 		return Pushes{}, err
 	}
 	return pushes, nil
+}
+
+func (c *Client) GetMe() (User, error) {
+	//TODO add params and allow modified_after
+	body, _, err := c.do("GET", apiEndpoints["me"], nil)
+	if err != nil {
+		log.Println(err)
+		return User{}, err
+	}
+
+	var user User
+	if err = json.Unmarshal(body, &user); err != nil {
+		return User{}, err
+	}
+	return user, nil
 }
 
 func (c *Client) CreatePush(params Params) (map[string]interface{}, int, error) {

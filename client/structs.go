@@ -51,6 +51,22 @@ type Pushes struct {
 	Pushes []Push `json:"pushes"`
 }
 
+type User struct {
+	Iden            string `json:"iden"`
+	Email           string `json:"email"`
+	EmailNormalized string `json:"email_normalized"`
+	Name            string `json:"name"`
+	ImageUrl        string `json:"image_url"`
+	Preferences     struct {
+		Onboarding struct {
+			App       bool
+			Friends   bool
+			Extension bool
+		} `json:"onboarding"`
+		Social bool `json:"social"`
+	} `json:"preferences"`
+}
+
 type Note struct {
 	title string
 	body  string
