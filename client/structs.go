@@ -31,6 +31,26 @@ type Contacts struct {
 	Contacts []Contact `json:"contacts"`
 }
 
+type Push struct {
+	Iden                    string `json:"iden"`
+	Type                    string `json:"type"`
+	Title                   string `json:"title"`
+	Body                    string `json:"body"`
+	Url                     string `json:"url"`
+	Active                  bool   `json:"active"`
+	Dismissed               bool   `json:"dismissed"`
+	SenderIden              string `json:"sender_iden"`
+	SenderEmail             string `json:"sender_email"`
+	SenderEmailNormalized   string `json:"sender_email_normalized"`
+	ReceiverIden            string `json:"receiver_iden"`
+	ReceiverEmail           string `json:"receiver_email"`
+	ReceiverEmailNormalized string `json:"receiver_email_normalized"`
+}
+
+type Pushes struct {
+	Pushes []Push `json:"pushes"`
+}
+
 type Note struct {
 	title string
 	body  string

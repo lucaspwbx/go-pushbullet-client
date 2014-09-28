@@ -108,3 +108,41 @@ func TestGetContacts(t *testing.T) {
 		t.Errorf("Error, expected %#v, got %#v", expected, got)
 	}
 }
+
+func TestGetPushes(t *testing.T) {
+	body := `
+	{
+	"pushes": [
+	    {
+	      "iden": "ubdprOsjAhOzf0XYq",
+	      "type": "link",
+	      "title": "Pushbullet",
+	      "body": "Documenting our API",
+	      "url": "http://docs.pushbullet.com",
+	      "created": 1411595135.9685705,
+	      "modified": 1411595135.9686127,
+	      "active": true,
+	      "dismissed": false,
+	      "sender_iden": "ubd",
+	      "sender_email": "ryan@pushbullet.com",
+	      "sender_email_normalized": "ryan@pushbullet.com",
+	      "receiver_iden": "ubd",
+	      "receiver_email": "ryan@pushbullet.com",
+	      "receiver_email_normalized": "ryan@pushbullet.com"
+	    }
+	    ]
+	}
+	`
+	var expected Pushes
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		fmt.Println(err)
+		t.Errorf("Error unmarshalling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.GetPushes()
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}

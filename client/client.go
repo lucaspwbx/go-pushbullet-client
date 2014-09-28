@@ -65,28 +65,19 @@ func (c *Client) GetContacts() (Contacts, error) {
 	return contacts, nil
 }
 
-func (c *Client) GetPushes() (map[string]interface{}, int, error) {
+func (c *Client) GetPushes() (Pushes, error) {
 	//TODO add params and allow modified_after
-	req, err := http.NewRequest("GET", apiEndpoints["pushes"], nil)
+	body, _, err := c.do("GET", apiEndpoints["pushess"], nil)
 	if err != nil {
 		log.Println(err)
-		return nil, -1, err
+		return Pushes{}, err
 	}
-	req.SetBasicAuth(c.token, "")
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.HttpClient.Do(req)
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	defer resp.Body.Close()
 
-	var result map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return nil, -1, err
+	var pushes Pushes
+	if err = json.Unmarshal(body, &pushes); err != nil {
+		return Pushes{}, err
 	}
-	return result, resp.StatusCode, nil
+	return pushes, nil
 }
 
 func (c *Client) CreatePush(params Params) (map[string]interface{}, int, error) {
