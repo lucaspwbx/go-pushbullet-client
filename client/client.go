@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -17,27 +19,36 @@ var (
 	}
 )
 
-func (c *Client) GetDevices() (map[string]interface{}, int, error) {
-	req, err := http.NewRequest("GET", apiEndpoints["devices"], nil)
+func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error) {
+	req, err := http.NewRequest(method, endpoint, body)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
 	}
 	defer resp.Body.Close()
+	data, err := ioutil.ReadAll(resp.Body)
+	return data, resp.StatusCode, nil
+}
 
-	var result map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
+func (c *Client) GetDevices() (Devices, error) {
+	body, _, err := c.do("GET", apiEndpoints["devices"], nil)
 	if err != nil {
-		return nil, -1, err
+		log.Println(err)
+		return Devices{}, err
 	}
-	return result, resp.StatusCode, nil
+
+	var devices Devices
+	if err = json.Unmarshal(body, &devices); err != nil {
+		return Devices{}, err
+	}
+	return devices, nil
 }
 
 func (c *Client) GetContacts() (map[string]interface{}, int, error) {
@@ -48,7 +59,7 @@ func (c *Client) GetContacts() (map[string]interface{}, int, error) {
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
@@ -72,7 +83,7 @@ func (c *Client) GetPushes() (map[string]interface{}, int, error) {
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
@@ -89,7 +100,7 @@ func (c *Client) GetPushes() (map[string]interface{}, int, error) {
 
 func (c *Client) CreatePush(params Params) (map[string]interface{}, int, error) {
 	if _, ok := params["type"]; !ok {
-		return nil, -1, err
+		return nil, -1, errors.New("no type param")
 	}
 	jsonified_params, err := json.Marshal(params)
 	if err != nil {
@@ -102,7 +113,7 @@ func (c *Client) CreatePush(params Params) (map[string]interface{}, int, error) 
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
@@ -129,7 +140,7 @@ func (c *Client) CreateDevice(params Params) (map[string]interface{}, int, error
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
@@ -156,7 +167,7 @@ func (c *Client) CreateContact(params Params) (map[string]interface{}, int, erro
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
@@ -189,7 +200,7 @@ func (c *Client) UpdateDevice(params Params) (map[string]interface{}, int, error
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
@@ -222,7 +233,7 @@ func (c *Client) UpdatePush(params Params) (map[string]interface{}, int, error) 
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
@@ -255,7 +266,7 @@ func (c *Client) UpdateContact(params Params) (map[string]interface{}, int, erro
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
@@ -284,7 +295,7 @@ func (c *Client) DeleteDevice(params Params) (map[string]interface{}, int, error
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
@@ -313,7 +324,7 @@ func (c *Client) DeletePush(params Params) (map[string]interface{}, int, error) 
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err
@@ -342,7 +353,7 @@ func (c *Client) DeleteContact(params Params) (map[string]interface{}, int, erro
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err

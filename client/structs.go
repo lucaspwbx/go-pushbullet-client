@@ -2,6 +2,23 @@ package client
 
 import "net/http"
 
+type Device struct {
+	Iden         string `json:"iden"`
+	PushToken    string `json:"push_token"`
+	AppVersion   int    `json:"app_version"`
+	FingerPrint  string `json:"fingerprint"`
+	Active       bool   `json:"active"`
+	Nickname     string `json:"nickname"`
+	Manufacturer string `json:"manufacturer"`
+	Type         string `json:"type"`
+	Model        string `json:"model"`
+	Pushable     bool   `json:"pushable"`
+}
+
+type Devices struct {
+	Devices []Device `json:"devices"`
+}
+
 type Note struct {
 	title string
 	body  string
@@ -37,7 +54,7 @@ type File struct {
 
 type Client struct {
 	token      string
-	httpClient *http.Client
+	HttpClient *http.Client
 }
 
 type Params map[string]string
@@ -66,5 +83,5 @@ func NewFile(fname, ftype, furl, body string) *File {
 
 func NewClient(token string) *Client {
 	httpClient := &http.Client{}
-	return &Client{token: token, httpClient: httpClient}
+	return &Client{token: token, HttpClient: httpClient}
 }
