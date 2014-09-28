@@ -19,6 +19,18 @@ type Devices struct {
 	Devices []Device `json:"devices"`
 }
 
+type Contact struct {
+	Iden            string `json:"iden"`
+	Name            string `json:"name"`
+	Email           string `json:"email"`
+	EmailNormalized string `json:"email_normalized"`
+	Active          bool   `json:"active"`
+}
+
+type Contacts struct {
+	Contacts []Contact `json:"contacts"`
+}
+
 type Note struct {
 	title string
 	body  string
