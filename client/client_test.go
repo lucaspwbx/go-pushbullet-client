@@ -326,3 +326,29 @@ func TestUpdatePush(t *testing.T) {
 		t.Errorf("Error, expected %#v, got %#v", expected, got)
 	}
 }
+
+func TestUpdateContact(t *testing.T) {
+	body := `
+	{
+	  "iden": "ubdcjAfszs0Smi",
+	  "name": "Ryan Oldenburg",
+	  "created": 1399011660.4298899,
+	  "modified": 1399011660.42976,
+	  "email": "ryanjoldenburg@gmail.com",
+	  "email_normalized": "ryanjoldenburg@gmail.com",
+	  "active": true
+	}
+  `
+	var expected Contact
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		fmt.Println(err)
+		t.Errorf("Error unmarshalling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.UpdateContact(Params{"iden": "foo", "name": "foo", "email": "foo@bar.com"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}

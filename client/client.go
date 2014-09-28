@@ -202,37 +202,29 @@ func (c *Client) UpdatePush(params Params) (Push, error) {
 	return push, nil
 }
 
-func (c *Client) UpdateContact(params Params) (map[string]interface{}, int, error) {
+func (c *Client) UpdateContact(params Params) (Contact, error) {
 	id, ok := params["iden"]
 	if !ok {
-		return nil, -1, errors.New("No id")
+		return Contact{}, errors.New("No id")
 	}
 	delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["contacts"]+"/%s", id)
-	jsonified_params, err := json.Marshal(params)
-	if err != nil {
-		return nil, -1, err
-	}
-	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonified_params))
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	req.SetBasicAuth(c.token, "")
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.HttpClient.Do(req)
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	defer resp.Body.Close()
 
-	var result map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	jsonParams, err := json.Marshal(params)
 	if err != nil {
-		return nil, -1, err
+		return Contact{}, err
 	}
-	return result, resp.StatusCode, nil
+	body, _, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
+	if err != nil {
+		log.Println(err)
+		return Contact{}, err
+	}
+
+	var contact Contact
+	if err = json.Unmarshal(body, &contact); err != nil {
+		return Contact{}, err
+	}
+	return contact, nil
 }
 
 func (c *Client) DeleteDevice(params Params) (map[string]interface{}, int, error) {
