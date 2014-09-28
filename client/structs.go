@@ -9,8 +9,10 @@ type Note struct {
 }
 
 type Link struct {
-	note Note
-	url  string
+	title string
+	body  string
+	url   string
+	kind  string
 }
 
 type Address struct {
@@ -46,8 +48,8 @@ func NewNote(title, body string) *Note {
 	return &Note{title: title, body: body, kind: "note"}
 }
 
-func NewLink(title, body, url) *Link {
-	return &Link{title: title, body: body, kind: "link", url: url}
+func NewLink(title, body, url string) *Link {
+	return &Link{title: title, body: body, url: url, kind: "link"}
 }
 
 func NewAddress(name, address string) *Address {
@@ -58,7 +60,7 @@ func NewList(title string, items ...string) *List {
 	return &List{title: title, items: items, kind: "list"}
 }
 
-func NewFile(fname, ftype, furl, body) *File {
+func NewFile(fname, ftype, furl, body string) *File {
 	return &File{fileName: fname, fileType: ftype, fileUrl: furl, body: body, kind: "file"}
 }
 
