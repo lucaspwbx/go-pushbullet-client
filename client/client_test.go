@@ -292,3 +292,37 @@ func TestUpdateDevice(t *testing.T) {
 		t.Errorf("Error, expected %#v, got %#v", expected, got)
 	}
 }
+
+func TestUpdatePush(t *testing.T) {
+	body :=
+		`
+		{
+		  "iden": "ubdpj29aOK0sKG",
+		  "type": "note",
+		  "title": "Note Title",
+		  "body": "Note Body",
+		  "created": 1399253701.9744401,
+		  "modified": 1399253701.9746201,
+		  "active": true,
+		  "dismissed": false,
+		  "sender_iden": "ubd",
+		  "sender_email": "ryan@pushbullet.com",
+		  "sender_email_normalized": "ryan@pushbullet.com",
+		  "receiver_iden": "ubd",
+		  "receiver_email": "ryan@pushbullet.com",
+		  "receiver_email_normalized": "ryan@pushbullet.com"
+		}
+  `
+	var expected Push
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		fmt.Println(err)
+		t.Errorf("Error unmarshalling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.UpdatePush(Params{"iden": "foo", "type": "note", "title": "foo", "body": "bar"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
