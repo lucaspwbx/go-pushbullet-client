@@ -95,6 +95,51 @@ func (c *Client) GetMe() (User, error) {
 	return user, nil
 }
 
+func (c *Client) CreateDevice(params Params) (Device, error) {
+	jsonParams, err := json.Marshal(params)
+	if err != nil {
+		return Device{}, err
+	}
+	body, _, err := c.do("POST", apiEndpoints["devices"], bytes.NewBuffer(jsonParams))
+	if err != nil {
+		log.Println(err)
+		return Device{}, err
+	}
+
+	var device Device
+	if err = json.Unmarshal(body, &device); err != nil {
+		return Device{}, err
+	}
+	return device, nil
+}
+
+func (c *Client) CreateContact(params Params) (map[string]interface{}, int, error) {
+	jsonified_params, err := json.Marshal(params)
+	if err != nil {
+		return nil, -1, err
+	}
+	req, err := http.NewRequest("POST", apiEndpoints["contacts"], bytes.NewBuffer(jsonified_params))
+	if err != nil {
+		log.Println(err)
+		return nil, -1, err
+	}
+	req.SetBasicAuth(c.token, "")
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.HttpClient.Do(req)
+	if err != nil {
+		log.Println(err)
+		return nil, -1, err
+	}
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return nil, -1, err
+	}
+	return result, resp.StatusCode, nil
+}
+
 func (c *Client) CreatePush(params Params) (map[string]interface{}, int, error) {
 	if _, ok := params["type"]; !ok {
 		return nil, -1, errors.New("no type param")
@@ -104,60 +149,6 @@ func (c *Client) CreatePush(params Params) (map[string]interface{}, int, error) 
 		return nil, -1, err
 	}
 	req, err := http.NewRequest("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonified_params))
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	req.SetBasicAuth(c.token, "")
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.HttpClient.Do(req)
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	defer resp.Body.Close()
-
-	var result map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return nil, -1, err
-	}
-	return result, resp.StatusCode, nil
-}
-
-func (c *Client) CreateDevice(params Params) (map[string]interface{}, int, error) {
-	jsonified_params, err := json.Marshal(params)
-	if err != nil {
-		return nil, -1, err
-	}
-	req, err := http.NewRequest("POST", apiEndpoints["devices"], bytes.NewBuffer(jsonified_params))
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	req.SetBasicAuth(c.token, "")
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.HttpClient.Do(req)
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	defer resp.Body.Close()
-
-	var result map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return nil, -1, err
-	}
-	return result, resp.StatusCode, nil
-}
-
-func (c *Client) CreateContact(params Params) (map[string]interface{}, int, error) {
-	jsonified_params, err := json.Marshal(params)
-	if err != nil {
-		return nil, -1, err
-	}
-	req, err := http.NewRequest("POST", apiEndpoints["contacts"], bytes.NewBuffer(jsonified_params))
 	if err != nil {
 		log.Println(err)
 		return nil, -1, err

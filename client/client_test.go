@@ -180,3 +180,29 @@ func TestGetMe(t *testing.T) {
 		t.Errorf("Error, expected %#v, got %#v", expected, got)
 	}
 }
+
+func TestCreateDevice(t *testing.T) {
+	body := `
+	{
+	  "iden": "udm0Tdjz5A7bL4NM",
+	  "nickname": "stream_device",
+	  "created": 1401840789.2369599,
+	  "modified": 1401840789.2369699,
+	  "active": true,
+	  "type": "stream",
+	  "pushable": true
+	}
+  `
+	var expected Device
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		fmt.Println(err)
+		t.Errorf("Error unmarshalling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.CreateDevice(Params{"nickname": "foodevice", "type": "stream"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
