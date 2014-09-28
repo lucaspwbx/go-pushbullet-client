@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"reflect"
@@ -72,6 +73,37 @@ func TestGetDevices(t *testing.T) {
 	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
 	client := newTestClient(fakeRT)
 	got, _ := client.GetDevices()
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
+func TestGetContacts(t *testing.T) {
+	body :=
+		`
+		{
+		  "contacts": [
+		  {
+		    "iden": "ubdcjAfszs0Smi",
+		    "name": "Ryan Oldenburg",
+		    "created": 1399011660.4298899,
+		    "modified": 1399011660.42976,
+		    "email": "ryanjoldenburg@gmail.com",
+		    "email_normalized": "ryanjoldenburg@gmail.com",
+		    "active": true
+		  }
+		  ]
+		}
+		`
+	var expected Contacts
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		fmt.Println(err)
+		t.Errorf("Error unmarshalling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.GetContacts()
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Error, expected %#v, got %#v", expected, got)
 	}

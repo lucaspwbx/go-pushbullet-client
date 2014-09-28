@@ -51,27 +51,18 @@ func (c *Client) GetDevices() (Devices, error) {
 	return devices, nil
 }
 
-func (c *Client) GetContacts() (map[string]interface{}, int, error) {
-	req, err := http.NewRequest("GET", apiEndpoints["contacts"], nil)
+func (c *Client) GetContacts() (Contacts, error) {
+	body, _, err := c.do("GET", apiEndpoints["contacts"], nil)
 	if err != nil {
 		log.Println(err)
-		return nil, -1, err
+		return Contacts{}, err
 	}
-	req.SetBasicAuth(c.token, "")
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.HttpClient.Do(req)
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	defer resp.Body.Close()
 
-	var result map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return nil, -1, err
+	var contacts Contacts
+	if err = json.Unmarshal(body, &contacts); err != nil {
+		return Contacts{}, err
 	}
-	return result, resp.StatusCode, nil
+	return contacts, nil
 }
 
 func (c *Client) GetPushes() (map[string]interface{}, int, error) {
