@@ -352,3 +352,12 @@ func TestUpdateContact(t *testing.T) {
 		t.Errorf("Error, expected %#v, got %#v", expected, got)
 	}
 }
+
+func TestDeleteDevice(t *testing.T) {
+	fakeRT := &FakeRoundTripper{message: "foo", status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.DeleteDevice(Params{"iden": "foo"})
+	if got != http.StatusOK {
+		t.Errorf("Error")
+	}
+}
