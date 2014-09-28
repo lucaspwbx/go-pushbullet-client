@@ -113,31 +113,22 @@ func (c *Client) CreateDevice(params Params) (Device, error) {
 	return device, nil
 }
 
-func (c *Client) CreateContact(params Params) (map[string]interface{}, int, error) {
-	jsonified_params, err := json.Marshal(params)
+func (c *Client) CreateContact(params Params) (Contact, error) {
+	jsonParams, err := json.Marshal(params)
 	if err != nil {
-		return nil, -1, err
+		return Contact{}, err
 	}
-	req, err := http.NewRequest("POST", apiEndpoints["contacts"], bytes.NewBuffer(jsonified_params))
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	req.SetBasicAuth(c.token, "")
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.HttpClient.Do(req)
+	body, _, err := c.do("POST", apiEndpoints["contacts"], bytes.NewBuffer(jsonParams))
 	if err != nil {
 		log.Println(err)
-		return nil, -1, err
+		return Contact{}, err
 	}
-	defer resp.Body.Close()
 
-	var result map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return nil, -1, err
+	var contact Contact
+	if err = json.Unmarshal(body, &contact); err != nil {
+		return Contact{}, err
 	}
-	return result, resp.StatusCode, nil
+	return contact, nil
 }
 
 func (c *Client) CreatePush(params Params) (map[string]interface{}, int, error) {
