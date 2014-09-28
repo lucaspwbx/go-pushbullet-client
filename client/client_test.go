@@ -361,3 +361,21 @@ func TestDeleteDevice(t *testing.T) {
 		t.Errorf("Error")
 	}
 }
+
+func TestDeletePush(t *testing.T) {
+	fakeRT := &FakeRoundTripper{message: "foo", status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.DeletePush(Params{"iden": "foo"})
+	if got != http.StatusOK {
+		t.Errorf("Error")
+	}
+}
+
+func TestDeleteContact(t *testing.T) {
+	fakeRT := &FakeRoundTripper{message: "foo", status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.DeleteContact(Params{"iden": "foo"})
+	if got != http.StatusOK {
+		t.Errorf("Error")
+	}
+}

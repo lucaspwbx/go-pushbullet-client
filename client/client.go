@@ -242,60 +242,32 @@ func (c *Client) DeleteDevice(params Params) (int, error) {
 	return status, nil
 }
 
-func (c *Client) DeletePush(params Params) (map[string]interface{}, int, error) {
+func (c *Client) DeletePush(params Params) (int, error) {
 	id, ok := params["iden"]
 	if !ok {
-		return nil, -1, errors.New("No id")
+		return -1, errors.New("No id")
 	}
 	delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["pushes"]+"/%s", id)
-	req, err := http.NewRequest("DELETE", endpoint, nil)
+	_, status, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
 		log.Println(err)
-		return nil, -1, err
+		return -1, err
 	}
-	req.SetBasicAuth(c.token, "")
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.HttpClient.Do(req)
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	defer resp.Body.Close()
-
-	var result map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return nil, -1, err
-	}
-	return result, resp.StatusCode, nil
+	return status, nil
 }
 
-func (c *Client) DeleteContact(params Params) (map[string]interface{}, int, error) {
+func (c *Client) DeleteContact(params Params) (int, error) {
 	id, ok := params["iden"]
 	if !ok {
-		return nil, -1, errors.New("No id")
+		return -1, errors.New("No id")
 	}
 	delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["contacts"]+"/%s", id)
-	req, err := http.NewRequest("DELETE", endpoint, nil)
+	_, status, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
 		log.Println(err)
-		return nil, -1, err
+		return -1, err
 	}
-	req.SetBasicAuth(c.token, "")
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.HttpClient.Do(req)
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	defer resp.Body.Close()
-
-	var result map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return nil, -1, err
-	}
-	return result, resp.StatusCode, nil
+	return status, nil
 }
