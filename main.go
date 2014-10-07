@@ -38,5 +38,7 @@ func main() {
 	//fmt.Println(r)
 	//o, _ := cli.CreatePush(client.Params{"type": "address", "name": "ok", "address": "bla"})
 	//fmt.Println(o)
-	c, _ := cli.CreatePush(client.Params{"type": "list", "title": "titulo", "items": "bla"})
+	//c, _ := cli.CreatePush(client.Params{"type": "list", "title": "titulo", "items": "bla"})
+	subs, _ := cli.GetSubscriptions()
+	fmt.Println(subs)
 }

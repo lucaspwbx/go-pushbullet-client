@@ -13,9 +13,11 @@ import (
 
 var (
 	apiEndpoints = Endpoint{"contacts": "https://api.pushbullet.com/v2/contacts",
-		"pushes":  "https://api.pushbullet.com/v2/pushes",
-		"devices": "https://api.pushbullet.com/v2/devices",
-		"me":      "https://api.pushbullet.com/v2/users/me",
+		"pushes":        "https://api.pushbullet.com/v2/pushes",
+		"devices":       "https://api.pushbullet.com/v2/devices",
+		"me":            "https://api.pushbullet.com/v2/users/me",
+		"subscriptions": "https://api.pushbullet.com/v2/subscriptions",
+		"channel":       "https://api.pushbullet.com/v2/channel-info",
 	}
 )
 
@@ -51,6 +53,56 @@ func (c *Client) GetMe() (User, error) {
 		return User{}, err
 	}
 	return user, nil
+}
+
+//TODO implement
+func (c *Client) CreateSubscriptions(params Params) (Subscriptions, error) {
+}
+
+//WORKING - need unit test
+func (c *Client) GetSubscriptions() (Subscriptions, error) {
+	body, _, err := c.do("GET", apiEndpoints["subscriptions"], nil)
+	if err != nil {
+		log.Println(err)
+		return Subscriptions{}, err
+	}
+
+	var subscriptions Subscriptions
+	if err = json.Unmarshal(body, &subscriptions); err != nil {
+		return Subscriptions{}, err
+	}
+	return subscriptions, nil
+}
+
+//WORKING - need unit tests and allow params passing
+func (c *Client) GetChannel(params Params) (Channel, error) {
+	body, _, err := c.do("GET", apiEndpoints["channels"], nil)
+	if err != nil {
+		log.Println(err)
+		return Channel{}, err
+	}
+
+	var channel Channel
+	if err = json.Unmarshal(body, &channel); err != nil {
+		return Channel{}, err
+	}
+	return channel, nil
+}
+
+//WORKING - need unit test
+func (c *Client) DeleteSubscriptions(params Params) (int, error) {
+	id, ok := params["iden"]
+	if !ok {
+		return -1, errors.New("No id")
+	}
+	delete(params, "iden")
+	endpoint := fmt.Sprintf(apiEndpoints["subscriptions"]+"/%s", id)
+	_, status, err := c.do("DELETE", endpoint, nil)
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
+	return status, nil
 }
 
 //WORKING - Review case of active/non active contacts

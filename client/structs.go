@@ -2,6 +2,24 @@ package client
 
 import "net/http"
 
+type Subscription struct {
+	Iden    string  `json:"iden"`
+	Active  bool    `json:"active"`
+	Channel Channel `json:"channel"`
+}
+
+type Subscriptions struct {
+	Subscriptions []Subscription `json:"subscriptions"`
+}
+
+type Channel struct {
+	Iden        string `json:"iden"`
+	Tag         string `json:"tag"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	ImageUrl    string `json:"image_url"`
+}
+
 type Device struct {
 	Iden         string `json:"iden"`
 	PushToken    string `json:"push_token"`
