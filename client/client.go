@@ -74,9 +74,15 @@ func (c *Client) GetSubscriptions() (Subscriptions, error) {
 	return subscriptions, nil
 }
 
-//WORKING - need unit tests and allow params passing
+//WORKING - need unit tests
 func (c *Client) GetChannel(params Params) (Channel, error) {
-	body, _, err := c.do("GET", apiEndpoints["channels"], nil)
+	tag, ok := params["tag"]
+	if !ok {
+		return -1, errors.New("No tag")
+	}
+	delete(params, "tag")
+	endpoint := fmt.Sprintf(apiEndpoints["channels"]+"?tag=%s", tag)
+	body, _, err := c.do("GET", endpoint, nil)
 	if err != nil {
 		log.Println(err)
 		return Channel{}, err
