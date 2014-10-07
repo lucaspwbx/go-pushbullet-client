@@ -41,7 +41,6 @@ func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error
 
 //WORKING
 func (c *Client) GetMe() (User, error) {
-	//TODO add params and allow modified_after
 	body, _, err := c.do("GET", apiEndpoints["me"], nil)
 	if err != nil {
 		log.Println(err)
@@ -55,8 +54,51 @@ func (c *Client) GetMe() (User, error) {
 	return user, nil
 }
 
-//TODO implement
-func (c *Client) CreateSubscriptions(params Params) (Subscriptions, error) {
+//TODO - test manually and with unit test
+func (c *Client) UpdateMe(params Params) (User, error) {
+	preferences, ok := params["preferences"]
+	if !ok {
+		return User{}, errors.New("No preferences")
+	}
+	delete(params, "preferences")
+
+	jsonParams, err := json.Marshal(params)
+	if err != nil {
+		return User{}, err
+	}
+	body, _, err := c.do("POST", apiEndpoints["me"], bytes.NewBuffer(jsonParams))
+	if err != nil {
+		log.Println(err)
+		return User{}, err
+	}
+
+	var user User
+	if err = json.Unmarshal(body, &user); err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
+
+//TODO Unit test
+func (c *Client) CreateSubscription(params Params) (Subscription, error) {
+	if _, ok := params["channel_tag"]; !ok {
+		return Subscription{}, errors.New("no channel tag parameter")
+	}
+	jsonParams, err := json.Marshal(params)
+	if err != nil {
+		return Subscription{}, err
+	}
+	body, _, err := c.do("POST", apiEndpoints["Subscriptions"], bytes.NewBuffer(jsonParams))
+	if err != nil {
+		log.Println(err)
+		return Subscription{}, err
+	}
+
+	var subscription Subscription
+	if err = json.Unmarshal(body, &subscription); err != nil {
+		return Subscription{}, err
+	}
+	return subscription, nil
 }
 
 //WORKING - need unit test
