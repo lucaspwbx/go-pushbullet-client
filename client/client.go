@@ -126,7 +126,6 @@ func (c *Client) GetChannel(params Params) (Channel, error) {
 	if !ok {
 		return Channel{}, errors.New("No tag")
 	}
-	delete(params, "tag")
 	endpoint := fmt.Sprintf(apiEndpoints["channels"]+"?tag=%s", tag)
 	body, _, err := c.do("GET", endpoint, nil)
 	if err != nil {
