@@ -37,49 +37,7 @@ func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error
 	return data, resp.StatusCode, nil
 }
 
-func (c *Client) GetDevices() (Devices, error) {
-	body, _, err := c.do("GET", apiEndpoints["devices"], nil)
-	if err != nil {
-		log.Println(err)
-		return Devices{}, err
-	}
-
-	var devices Devices
-	if err = json.Unmarshal(body, &devices); err != nil {
-		return Devices{}, err
-	}
-	return devices, nil
-}
-
-func (c *Client) GetContacts() (Contacts, error) {
-	body, _, err := c.do("GET", apiEndpoints["contacts"], nil)
-	if err != nil {
-		log.Println(err)
-		return Contacts{}, err
-	}
-
-	var contacts Contacts
-	if err = json.Unmarshal(body, &contacts); err != nil {
-		return Contacts{}, err
-	}
-	return contacts, nil
-}
-
-func (c *Client) GetPushes() (Pushes, error) {
-	//TODO add params and allow modified_after
-	body, _, err := c.do("GET", apiEndpoints["pushes"], nil)
-	if err != nil {
-		log.Println(err)
-		return Pushes{}, err
-	}
-
-	var pushes Pushes
-	if err = json.Unmarshal(body, &pushes); err != nil {
-		return Pushes{}, err
-	}
-	return pushes, nil
-}
-
+//WORKING
 func (c *Client) GetMe() (User, error) {
 	//TODO add params and allow modified_after
 	body, _, err := c.do("GET", apiEndpoints["me"], nil)
@@ -95,24 +53,22 @@ func (c *Client) GetMe() (User, error) {
 	return user, nil
 }
 
-func (c *Client) CreateDevice(params Params) (Device, error) {
-	jsonParams, err := json.Marshal(params)
-	if err != nil {
-		return Device{}, err
-	}
-	body, _, err := c.do("POST", apiEndpoints["devices"], bytes.NewBuffer(jsonParams))
+//WORKING - Review case of active/non active contacts
+func (c *Client) GetContacts() (Contacts, error) {
+	body, _, err := c.do("GET", apiEndpoints["contacts"], nil)
 	if err != nil {
 		log.Println(err)
-		return Device{}, err
+		return Contacts{}, err
 	}
 
-	var device Device
-	if err = json.Unmarshal(body, &device); err != nil {
-		return Device{}, err
+	var contacts Contacts
+	if err = json.Unmarshal(body, &contacts); err != nil {
+		return Contacts{}, err
 	}
-	return device, nil
+	return contacts, nil
 }
 
+//WORKING
 func (c *Client) CreateContact(params Params) (Contact, error) {
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
@@ -131,27 +87,83 @@ func (c *Client) CreateContact(params Params) (Contact, error) {
 	return contact, nil
 }
 
-func (c *Client) CreatePush(params Params) (Push, error) {
-	if _, ok := params["type"]; !ok {
-		return Push{}, errors.New("no type")
+//WORKING
+func (c *Client) UpdateContact(params Params) (Contact, error) {
+	id, ok := params["iden"]
+	if !ok {
+		return Contact{}, errors.New("No id")
 	}
+	delete(params, "iden")
+	endpoint := fmt.Sprintf(apiEndpoints["contacts"]+"/%s", id)
+
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
-		return Push{}, err
+		return Contact{}, err
 	}
-	body, _, err := c.do("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonParams))
+	body, _, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
 	if err != nil {
 		log.Println(err)
-		return Push{}, err
+		return Contact{}, err
 	}
 
-	var push Push
-	if err = json.Unmarshal(body, &push); err != nil {
-		return Push{}, err
+	var contact Contact
+	if err = json.Unmarshal(body, &contact); err != nil {
+		return Contact{}, err
 	}
-	return push, nil
+	return contact, nil
 }
 
+//WORKING
+func (c *Client) DeleteContact(params Params) (int, error) {
+	id, ok := params["iden"]
+	if !ok {
+		return -1, errors.New("No id")
+	}
+	delete(params, "iden")
+	endpoint := fmt.Sprintf(apiEndpoints["contacts"]+"/%s", id)
+	_, status, err := c.do("DELETE", endpoint, nil)
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
+	return status, nil
+}
+
+//WORKING - need to review edge case
+func (c *Client) GetDevices() (Devices, error) {
+	body, _, err := c.do("GET", apiEndpoints["devices"], nil)
+	if err != nil {
+		log.Println(err)
+		return Devices{}, err
+	}
+
+	var devices Devices
+	if err = json.Unmarshal(body, &devices); err != nil {
+		return Devices{}, err
+	}
+	return devices, nil
+}
+
+//WORKING - need to review parameters that should pass or not
+func (c *Client) CreateDevice(params Params) (Device, error) {
+	jsonParams, err := json.Marshal(params)
+	if err != nil {
+		return Device{}, err
+	}
+	body, _, err := c.do("POST", apiEndpoints["devices"], bytes.NewBuffer(jsonParams))
+	if err != nil {
+		log.Println(err)
+		return Device{}, err
+	}
+
+	var device Device
+	if err = json.Unmarshal(body, &device); err != nil {
+		return Device{}, err
+	}
+	return device, nil
+}
+
+//WORKING
 func (c *Client) UpdateDevice(params Params) (Device, error) {
 	id, ok := params["iden"]
 	if !ok {
@@ -175,6 +187,60 @@ func (c *Client) UpdateDevice(params Params) (Device, error) {
 		return Device{}, err
 	}
 	return device, nil
+}
+
+//WORKING
+func (c *Client) DeleteDevice(params Params) (int, error) {
+	id, ok := params["iden"]
+	if !ok {
+		return -1, errors.New("No id")
+	}
+	delete(params, "iden")
+	endpoint := fmt.Sprintf(apiEndpoints["devices"]+"/%s", id)
+	_, status, err := c.do("DELETE", endpoint, nil)
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
+	return status, nil
+}
+
+//REVIEW
+func (c *Client) GetPushes() (Pushes, error) {
+	//TODO add params and allow modified_after
+	body, _, err := c.do("GET", apiEndpoints["pushes"], nil)
+	if err != nil {
+		log.Println(err)
+		return Pushes{}, err
+	}
+
+	var pushes Pushes
+	if err = json.Unmarshal(body, &pushes); err != nil {
+		return Pushes{}, err
+	}
+	return pushes, nil
+}
+
+//WORKING for note, link, address, need to review to implement support for checklist and file
+func (c *Client) CreatePush(params Params) (Push, error) {
+	if _, ok := params["type"]; !ok {
+		return Push{}, errors.New("no type")
+	}
+	jsonParams, err := json.Marshal(params)
+	if err != nil {
+		return Push{}, err
+	}
+	body, _, err := c.do("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonParams))
+	if err != nil {
+		log.Println(err)
+		return Push{}, err
+	}
+
+	var push Push
+	if err = json.Unmarshal(body, &push); err != nil {
+		return Push{}, err
+	}
+	return push, nil
 }
 
 func (c *Client) UpdatePush(params Params) (Push, error) {
@@ -202,46 +268,7 @@ func (c *Client) UpdatePush(params Params) (Push, error) {
 	return push, nil
 }
 
-func (c *Client) UpdateContact(params Params) (Contact, error) {
-	id, ok := params["iden"]
-	if !ok {
-		return Contact{}, errors.New("No id")
-	}
-	delete(params, "iden")
-	endpoint := fmt.Sprintf(apiEndpoints["contacts"]+"/%s", id)
-
-	jsonParams, err := json.Marshal(params)
-	if err != nil {
-		return Contact{}, err
-	}
-	body, _, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
-	if err != nil {
-		log.Println(err)
-		return Contact{}, err
-	}
-
-	var contact Contact
-	if err = json.Unmarshal(body, &contact); err != nil {
-		return Contact{}, err
-	}
-	return contact, nil
-}
-
-func (c *Client) DeleteDevice(params Params) (int, error) {
-	id, ok := params["iden"]
-	if !ok {
-		return -1, errors.New("No id")
-	}
-	delete(params, "iden")
-	endpoint := fmt.Sprintf(apiEndpoints["devices"]+"/%s", id)
-	_, status, err := c.do("DELETE", endpoint, nil)
-	if err != nil {
-		log.Println(err)
-		return -1, err
-	}
-	return status, nil
-}
-
+//WORKING
 func (c *Client) DeletePush(params Params) (int, error) {
 	id, ok := params["iden"]
 	if !ok {
@@ -249,21 +276,6 @@ func (c *Client) DeletePush(params Params) (int, error) {
 	}
 	delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["pushes"]+"/%s", id)
-	_, status, err := c.do("DELETE", endpoint, nil)
-	if err != nil {
-		log.Println(err)
-		return -1, err
-	}
-	return status, nil
-}
-
-func (c *Client) DeleteContact(params Params) (int, error) {
-	id, ok := params["iden"]
-	if !ok {
-		return -1, errors.New("No id")
-	}
-	delete(params, "iden")
-	endpoint := fmt.Sprintf(apiEndpoints["contacts"]+"/%s", id)
 	_, status, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
 		log.Println(err)
