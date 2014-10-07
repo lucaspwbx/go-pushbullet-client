@@ -14,12 +14,12 @@ import (
 var (
 	v2Api        = "https://api.pushbullet.com/v2/"
 	apiEndpoints = Endpoint{
-		"contacts": v2Api+ "contacts",
-		"pushes":   v2Api + "pushes",
-		"devices": v2Api + "devices",
-		"me": v2Api + "/users/me",
+		"contacts":      v2Api + "contacts",
+		"pushes":        v2Api + "pushes",
+		"devices":       v2Api + "devices",
+		"me":            v2Api + "users/me",
 		"subscriptions": v2Api + "subscriptions",
-		"channel": v2Api + "channel-info",
+		"channels":      v2Api + "channel-info",
 	}
 )
 
@@ -31,6 +31,7 @@ func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
+	fmt.Println(req)
 	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
@@ -41,14 +42,13 @@ func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error
 	return data, resp.StatusCode, nil
 }
 
-//WORKING
+//DONE
 func (c *Client) GetMe() (User, error) {
 	body, _, err := c.do("GET", apiEndpoints["me"], nil)
 	if err != nil {
 		log.Println(err)
 		return User{}, err
 	}
-
 	var user User
 	if err = json.Unmarshal(body, &user); err != nil {
 		return User{}, err
@@ -56,7 +56,7 @@ func (c *Client) GetMe() (User, error) {
 	return user, nil
 }
 
-//TODO - test manually and with unit test
+//TODO - test manually and with unit test - not working
 func (c *Client) UpdateMe(params Params) (User, error) {
 	pref, ok := params["preferences"]
 	if !ok {
@@ -82,8 +82,8 @@ func (c *Client) UpdateMe(params Params) (User, error) {
 	return user, nil
 }
 
-//TODO Unit test
-func (c *Client) CreateSubscription(params Params) (Subscription, error) {
+//DONE - need unit test
+func (c *Client) Subscribe(params Params) (Subscription, error) {
 	if _, ok := params["channel_tag"]; !ok {
 		return Subscription{}, errors.New("no channel tag parameter")
 	}
@@ -91,7 +91,8 @@ func (c *Client) CreateSubscription(params Params) (Subscription, error) {
 	if err != nil {
 		return Subscription{}, err
 	}
-	body, _, err := c.do("POST", apiEndpoints["Subscriptions"], bytes.NewBuffer(jsonParams))
+	body, status, err := c.do("POST", apiEndpoints["subscriptions"], bytes.NewBuffer(jsonParams))
+	fmt.Println(status)
 	if err != nil {
 		log.Println(err)
 		return Subscription{}, err
@@ -104,8 +105,8 @@ func (c *Client) CreateSubscription(params Params) (Subscription, error) {
 	return subscription, nil
 }
 
-//WORKING - need unit test
-func (c *Client) GetSubscriptions() (Subscriptions, error) {
+//DONE - need unit test
+func (c *Client) Subscriptions() (Subscriptions, error) {
 	body, _, err := c.do("GET", apiEndpoints["subscriptions"], nil)
 	if err != nil {
 		log.Println(err)
