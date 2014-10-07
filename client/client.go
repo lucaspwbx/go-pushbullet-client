@@ -120,7 +120,7 @@ func (c *Client) Subscriptions() (Subscriptions, error) {
 	return subscriptions, nil
 }
 
-//WORKING - need unit tests
+//DONE - need unit tests
 func (c *Client) GetChannel(params Params) (Channel, error) {
 	tag, ok := params["tag"]
 	if !ok {
@@ -140,13 +140,13 @@ func (c *Client) GetChannel(params Params) (Channel, error) {
 	return channel, nil
 }
 
-//WORKING - need unit test
-func (c *Client) DeleteSubscriptions(params Params) (int, error) {
+//DONE - need unit test
+func (c *Client) Unsubscribe(params Params) (int, error) {
 	id, ok := params["iden"]
 	if !ok {
 		return -1, errors.New("No id")
 	}
-	delete(params, "iden")
+	//delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["subscriptions"]+"/%s", id)
 	_, status, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
@@ -156,7 +156,7 @@ func (c *Client) DeleteSubscriptions(params Params) (int, error) {
 	return status, nil
 }
 
-//WORKING - Review case of active/non active contacts
+//DONE - Review case of active/non active contacts
 func (c *Client) GetContacts() (Contacts, error) {
 	body, _, err := c.do("GET", apiEndpoints["contacts"], nil)
 	if err != nil {
@@ -171,7 +171,7 @@ func (c *Client) GetContacts() (Contacts, error) {
 	return contacts, nil
 }
 
-//WORKING
+//DONE
 func (c *Client) CreateContact(params Params) (Contact, error) {
 	jsonParams, err := json.Marshal(params)
 	if err != nil {

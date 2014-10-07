@@ -40,9 +40,13 @@ func main() {
 	//fmt.Println(o)
 	//c, _ := cli.CreatePush(client.Params{"type": "list", "title": "titulo", "items": "bla"})
 	subs, _ := cli.Subscriptions()
-	fmt.Println(subs)
+	for _, v := range subs.Subscriptions {
+		fmt.Println(v.Iden)
+	}
 	//teste, _ := cli.Subscribe(client.Params{"channel_tag": "bla"})
 	//fmt.Println(teste)
-	teste, _ := cli.GetChannel(client.Params{"tag": "bla"})
-	fmt.Println(teste)
+	//teste, _ := cli.GetChannel(client.Params{"tag": "bla"})
+	//fmt.Println(teste)
+	//teste, _ := cli.Unsubscribe(client.Params{"iden": "ujvSxVpCjh6sjAqnjXGNrw"})
+	//fmt.Println(teste)
 }
