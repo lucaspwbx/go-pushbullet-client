@@ -12,12 +12,14 @@ import (
 )
 
 var (
-	apiEndpoints = Endpoint{"contacts": "https://api.pushbullet.com/v2/contacts",
-		"pushes":        "https://api.pushbullet.com/v2/pushes",
-		"devices":       "https://api.pushbullet.com/v2/devices",
-		"me":            "https://api.pushbullet.com/v2/users/me",
-		"subscriptions": "https://api.pushbullet.com/v2/subscriptions",
-		"channel":       "https://api.pushbullet.com/v2/channel-info",
+	v2Api        = "https://api.pushbullet.com/v2/"
+	apiEndpoints = Endpoint{
+		"contacts": v2Api+ "contacts",
+		"pushes":   v2Api + "pushes",
+		"devices": v2Api + "devices",
+		"me": v2Api + "/users/me",
+		"subscriptions": v2Api + "subscriptions",
+		"channel": v2Api + "channel-info",
 	}
 )
 
@@ -56,13 +58,14 @@ func (c *Client) GetMe() (User, error) {
 
 //TODO - test manually and with unit test
 func (c *Client) UpdateMe(params Params) (User, error) {
-	preferences, ok := params["preferences"]
+	pref, ok := params["preferences"]
 	if !ok {
 		return User{}, errors.New("No preferences")
 	}
-	delete(params, "preferences")
+	//delete(params, "preferences")
 
-	jsonParams, err := json.Marshal(params)
+	//jsonParams, err := json.Marshal(params)
+	jsonParams, err := json.Marshal(pref)
 	if err != nil {
 		return User{}, err
 	}
@@ -120,7 +123,7 @@ func (c *Client) GetSubscriptions() (Subscriptions, error) {
 func (c *Client) GetChannel(params Params) (Channel, error) {
 	tag, ok := params["tag"]
 	if !ok {
-		return -1, errors.New("No tag")
+		return Channel{}, errors.New("No tag")
 	}
 	delete(params, "tag")
 	endpoint := fmt.Sprintf(apiEndpoints["channels"]+"?tag=%s", tag)
@@ -325,6 +328,16 @@ func (c *Client) GetPushes() (Pushes, error) {
 func (c *Client) CreatePush(params Params) (Push, error) {
 	if _, ok := params["type"]; !ok {
 		return Push{}, errors.New("no type")
+	}
+	switch params["type"] {
+	case "link":
+		if _, ok := params["link"]; !ok {
+			return Push{}, errors.New("no link for push of type link")
+		}
+	case "address":
+		if _, ok := params["address"]; !ok {
+			return Push{}, errors.New("no address for push of type address")
+		}
 	}
 	jsonParams, err := json.Marshal(params)
 	if err != nil {

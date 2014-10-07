@@ -123,10 +123,6 @@ type Client struct {
 	HttpClient *http.Client
 }
 
-//CHANGING
-//type Params map[string]string
-
-//NEW
 type Params map[string]interface{}
 
 type Endpoint map[string]string
