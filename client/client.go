@@ -146,7 +146,6 @@ func (c *Client) Unsubscribe(params Params) (int, error) {
 	if !ok {
 		return -1, errors.New("No id")
 	}
-	//delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["subscriptions"]+"/%s", id)
 	_, status, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
@@ -190,7 +189,7 @@ func (c *Client) CreateContact(params Params) (Contact, error) {
 	return contact, nil
 }
 
-//WORKING
+//DONE
 func (c *Client) UpdateContact(params Params) (Contact, error) {
 	id, ok := params["iden"]
 	if !ok {
@@ -216,7 +215,7 @@ func (c *Client) UpdateContact(params Params) (Contact, error) {
 	return contact, nil
 }
 
-//WORKING
+//DONE
 func (c *Client) DeleteContact(params Params) (int, error) {
 	id, ok := params["iden"]
 	if !ok {
@@ -231,7 +230,7 @@ func (c *Client) DeleteContact(params Params) (int, error) {
 	return status, nil
 }
 
-//WORKING - need to review edge case
+//DONE - need to review edge case
 func (c *Client) GetDevices() (Devices, error) {
 	body, _, err := c.do("GET", apiEndpoints["devices"], nil)
 	if err != nil {
@@ -246,7 +245,7 @@ func (c *Client) GetDevices() (Devices, error) {
 	return devices, nil
 }
 
-//WORKING - need to review parameters that should pass or not
+//DONE - need to review parameters that should pass or not
 func (c *Client) CreateDevice(params Params) (Device, error) {
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
@@ -265,7 +264,7 @@ func (c *Client) CreateDevice(params Params) (Device, error) {
 	return device, nil
 }
 
-//WORKING
+//DONE
 func (c *Client) UpdateDevice(params Params) (Device, error) {
 	id, ok := params["iden"]
 	if !ok {
