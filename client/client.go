@@ -321,7 +321,7 @@ func (c *Client) GetPushes() (Pushes, error) {
 	return pushes, nil
 }
 
-//WORKING for note, link, address, need to review to implement support for checklist and file
+//DONE for note, link, address, checklist. Missing file implementation
 func (c *Client) CreatePush(params Params) (Push, error) {
 	if _, ok := params["type"]; !ok {
 		return Push{}, errors.New("no type")
@@ -334,6 +334,14 @@ func (c *Client) CreatePush(params Params) (Push, error) {
 	case "address":
 		if _, ok := params["address"]; !ok {
 			return Push{}, errors.New("no address for push of type address")
+		}
+	case "list":
+		if _, ok := params["items"]; !ok {
+			return Push{}, errors.New("No items for push of type checklist")
+		}
+	case "file":
+		if _, ok := params["file_url"]; !ok {
+			return Push{}, errors.New("No url for push of type file")
 		}
 	}
 	jsonParams, err := json.Marshal(params)

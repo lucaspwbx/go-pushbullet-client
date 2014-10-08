@@ -49,4 +49,6 @@ func main() {
 	//fmt.Println(teste)
 	//teste, _ := cli.Unsubscribe(client.Params{"iden": "ujvSxVpCjh6sjAqnjXGNrw"})
 	//fmt.Println(teste)
+	//c, _ := cli.CreatePush(client.Params{"type": "list", "title": "titulo", "items": []string{"foo", "bar"}})
+	//fmt.Println(c)
 }
