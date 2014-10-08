@@ -14,12 +14,13 @@ import (
 var (
 	v2Api        = "https://api.pushbullet.com/v2/"
 	apiEndpoints = Endpoint{
-		"contacts":      v2Api + "contacts",
-		"pushes":        v2Api + "pushes",
-		"devices":       v2Api + "devices",
-		"me":            v2Api + "users/me",
-		"subscriptions": v2Api + "subscriptions",
-		"channels":      v2Api + "channel-info",
+		"contacts":       v2Api + "contacts",
+		"pushes":         v2Api + "pushes",
+		"devices":        v2Api + "devices",
+		"me":             v2Api + "users/me",
+		"subscriptions":  v2Api + "subscriptions",
+		"channels":       v2Api + "channel-info",
+		"upload_request": v2Api + "upload-request",
 	}
 )
 
@@ -399,4 +400,29 @@ func (c *Client) DeletePush(params Params) (int, error) {
 		return -1, err
 	}
 	return status, nil
+}
+
+//DONE - need unit test
+func (c *Client) UploadRequest(params Params) (UploadRequest, error) {
+	if _, ok := params["file_name"]; !ok {
+		return UploadRequest{}, errors.New("No file name")
+	}
+	if _, ok := params["file_type"]; !ok {
+		return UploadRequest{}, errors.New("no file type")
+	}
+	jsonParams, err := json.Marshal(params)
+	if err != nil {
+		return UploadRequest{}, err
+	}
+	body, _, err := c.do("POST", apiEndpoints["upload_request"], bytes.NewBuffer(jsonParams))
+	if err != nil {
+		log.Println(err)
+		return UploadRequest{}, err
+	}
+
+	var uploadRequest UploadRequest
+	if err = json.Unmarshal(body, &uploadRequest); err != nil {
+		return UploadRequest{}, err
+	}
+	return uploadRequest, nil
 }

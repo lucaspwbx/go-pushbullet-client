@@ -51,4 +51,6 @@ func main() {
 	//fmt.Println(teste)
 	//c, _ := cli.CreatePush(client.Params{"type": "list", "title": "titulo", "items": []string{"foo", "bar"}})
 	//fmt.Println(c)
+	req, _ := cli.UploadRequest(client.Params{"file_name": "image.png", "file_type": "image/png"})
+	fmt.Println(req)
 }

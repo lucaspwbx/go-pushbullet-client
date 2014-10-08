@@ -85,6 +85,21 @@ type User struct {
 	} `json:"preferences"`
 }
 
+type UploadRequest struct {
+	FileType  string `json:"file_type"`
+	FileName  string `json:"file_name"`
+	FileUrl   string `json:"file_url"`
+	UploadUrl string `json:"upload_url"`
+	Data      struct {
+		AwsAccessKeyId string `json:"awsaccesskeyid"`
+		Acl            string `json:"acl"`
+		Key            string `json:"key"`
+		Signature      string `json:"signature"`
+		Policy         string `json:"policy"`
+		ContentType    string `json:"content-type"`
+	} `json:"data"`
+}
+
 type Note struct {
 	title string
 	body  string
