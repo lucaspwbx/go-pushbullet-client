@@ -222,7 +222,6 @@ func (c *Client) DeleteContact(params Params) (int, error) {
 	if !ok {
 		return -1, errors.New("No id")
 	}
-	delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["contacts"]+"/%s", id)
 	_, status, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
@@ -292,13 +291,12 @@ func (c *Client) UpdateDevice(params Params) (Device, error) {
 	return device, nil
 }
 
-//WORKING
+//DONE
 func (c *Client) DeleteDevice(params Params) (int, error) {
 	id, ok := params["iden"]
 	if !ok {
 		return -1, errors.New("No id")
 	}
-	delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["devices"]+"/%s", id)
 	_, status, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
@@ -381,13 +379,12 @@ func (c *Client) UpdatePush(params Params) (Push, error) {
 	return push, nil
 }
 
-//WORKING
+//DONE
 func (c *Client) DeletePush(params Params) (int, error) {
 	id, ok := params["iden"]
 	if !ok {
 		return -1, errors.New("No id")
 	}
-	delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["pushes"]+"/%s", id)
 	_, status, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
