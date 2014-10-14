@@ -8,7 +8,10 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 var (
@@ -426,4 +429,54 @@ func (c *Client) UploadRequest(params Params) (UploadRequest, error) {
 		return UploadRequest{}, err
 	}
 	return uploadRequest, nil
+}
+
+func (c *Client) Upload(path string) (int, error) {
+	req, err := c.UploadRequest(Params{
+		"file_name": "teste.txt",
+		"file_type": "text/plain",
+	})
+	if err != nil {
+		return -1, errors.New("Bad upload request")
+	}
+	file, err := os.Open(path)
+	if err != nil {
+		return -1, errors.New("no file")
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	writer.WriteField("awsaccesskeyid", req.Data.AwsAccessKeyId)
+	writer.WriteField("acl", req.Data.Acl)
+	writer.WriteField("key", req.Data.Key)
+	writer.WriteField("signature", req.Data.Signature)
+	writer.WriteField("policy", req.Data.Policy)
+	writer.WriteField("content-type", req.Data.ContentType)
+	part, err := writer.CreateFormFile("file", filepath.Base(path))
+	if err != nil {
+		return -1, errors.New("Error creating form file")
+	}
+	if _, err = io.Copy(part, file); err != nil {
+		return -1, errors.New("Error copying file")
+	}
+	err = writer.Close()
+	if err != nil {
+		return -1, errors.New("Error closing file")
+	}
+	upload_req, err := http.NewRequest("POST", req.UploadUrl, body)
+	upload_req.Header.Set("Content-Type", writer.FormDataContentType())
+	fmt.Println(upload_req)
+	if err != nil {
+		return -1, errors.New("Error creating POST REQUEST")
+	}
+	client := &http.Client{}
+	resp, err := client.Do(upload_req)
+	if err != nil {
+		return -1, errors.New("Error doing request")
+	}
+	data, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(data))
+
+	return resp.StatusCode, nil
 }

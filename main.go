@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/lucasweiblen/pushbulletclient/client"
 )
@@ -51,12 +52,30 @@ func main() {
 	//fmt.Println(teste)
 	//c, _ := cli.CreatePush(client.Params{"type": "list", "title": "titulo", "items": []string{"foo", "bar"}})
 	//fmt.Println(c)
-	req, _ := cli.UploadRequest(client.Params{"file_name": "image.png", "file_type": "image/png"})
-	fmt.Println("FileURL: ", req.UploadUrl)
-	fmt.Println("Data access key: ", req.Data.AwsAccessKeyId)
-	fmt.Println("Acl: ", req.Data.Acl)
-	fmt.Println("Kye: ", req.Data.Key)
-	fmt.Println("Signature: ", req.Data.Signature)
-	fmt.Println("Policyt: ", req.Data.Policy)
-	fmt.Println("Content-Type: ", req.Data.ContentType)
+	//req, _ := cli.UploadRequest(client.Params{"file_name": "image.png", "file_type": "image/png"})
+	//fmt.Println("FileURL: ", req.UploadUrl)
+	//fmt.Println("Data access key: ", req.Data.AwsAccessKeyId)
+	//fmt.Println("Acl: ", req.Data.Acl)
+	//fmt.Println("Kye: ", req.Data.Key)
+	//fmt.Println("Signature: ", req.Data.Signature)
+	//fmt.Println("Policyt: ", req.Data.Policy)
+	//fmt.Println("Content-Type: ", req.Data.ContentType)
+
+	//up, err := cli.Upload()
+	//if err != nil {
+	//fmt.Println(err)
+	//return
+	//}
+	//fmt.Println(up)
+	fmt.Println(cli)
+	//fmt.Println(os.Getwd())
+	path, _ := os.Getwd()
+	path += "/teste.txt"
+	//fmt.Println(path)
+	up, err := cli.Upload(path)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(up)
 }
