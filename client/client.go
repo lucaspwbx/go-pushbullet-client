@@ -40,6 +40,7 @@ func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error
 	}
 	defer resp.Body.Close()
 	data, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(resp.StatusCode)
 	return data, resp.StatusCode, nil
 }
 

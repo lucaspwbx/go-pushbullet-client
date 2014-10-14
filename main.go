@@ -39,10 +39,10 @@ func main() {
 	//o, _ := cli.CreatePush(client.Params{"type": "address", "name": "ok", "address": "bla"})
 	//fmt.Println(o)
 	//c, _ := cli.CreatePush(client.Params{"type": "list", "title": "titulo", "items": "bla"})
-	subs, _ := cli.Subscriptions()
-	for _, v := range subs.Subscriptions {
-		fmt.Println(v.Iden)
-	}
+	//subs, _ := cli.Subscriptions()
+	//for _, v := range subs.Subscriptions {
+	//fmt.Println(v.Iden)
+	//}
 	//teste, _ := cli.Subscribe(client.Params{"channel_tag": "bla"})
 	//fmt.Println(teste)
 	//teste, _ := cli.GetChannel(client.Params{"tag": "bla"})
@@ -52,5 +52,11 @@ func main() {
 	//c, _ := cli.CreatePush(client.Params{"type": "list", "title": "titulo", "items": []string{"foo", "bar"}})
 	//fmt.Println(c)
 	req, _ := cli.UploadRequest(client.Params{"file_name": "image.png", "file_type": "image/png"})
-	fmt.Println(req)
+	fmt.Println("FileURL: ", req.UploadUrl)
+	fmt.Println("Data access key: ", req.Data.AwsAccessKeyId)
+	fmt.Println("Acl: ", req.Data.Acl)
+	fmt.Println("Kye: ", req.Data.Key)
+	fmt.Println("Signature: ", req.Data.Signature)
+	fmt.Println("Policyt: ", req.Data.Policy)
+	fmt.Println("Content-Type: ", req.Data.ContentType)
 }
