@@ -77,12 +77,21 @@ type User struct {
 	ImageUrl        string `json:"image_url"`
 	Preferences     struct {
 		Onboarding struct {
-			App       bool
-			Friends   bool
-			Extension bool
+			App       bool `json:"app"`
+			Friends   bool `json:"friends"`
+			Extension bool `json:"extension"`
 		} `json:"onboarding"`
 		Social bool `json:"social"`
 	} `json:"preferences"`
+}
+
+type Preferences struct {
+	Onboarding struct {
+		App       bool `json:"app,omitempty"`
+		Friends   bool `json:"friends,omitempty"`
+		Extension bool `json:"extension,omitempty"`
+	} `json:"onboarding"`
+	Social bool `json:"social,omitempty"`
 }
 
 type UploadRequest struct {

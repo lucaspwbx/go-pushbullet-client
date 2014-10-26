@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/lucasweiblen/pushbulletclient/client"
 )
@@ -67,15 +66,20 @@ func main() {
 	//return
 	//}
 	//fmt.Println(up)
-	fmt.Println(cli)
+	//fmt.Println(cli)
 	//fmt.Println(os.Getwd())
-	path, _ := os.Getwd()
-	path += "/teste.txt"
+	//path, _ := os.Getwd()
+	//path += "/teste.txt"
 	//fmt.Println(path)
-	up, err := cli.Upload(path)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(up)
+	///up, err := cli.Upload(path)
+	//if err != nil {
+	//fmt.Println(err)
+	//return
+	//}
+	//fmt.Println(up)
+	//usr, _ := cli.UpdateMe(client.Preferences{Social: true})
+	obj := make(map[string]client.Preferences)
+	obj["preferences"] = client.Preferences{Social: false}
+	usr, _ := cli.UpdateMe(obj)
+	fmt.Println(usr)
 }

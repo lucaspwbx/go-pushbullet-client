@@ -61,16 +61,9 @@ func (c *Client) GetMe() (User, error) {
 	return user, nil
 }
 
-//TODO - test manually and with unit test - not working
-func (c *Client) UpdateMe(params Params) (User, error) {
-	pref, ok := params["preferences"]
-	if !ok {
-		return User{}, errors.New("No preferences")
-	}
-	//delete(params, "preferences")
-
-	//jsonParams, err := json.Marshal(params)
-	jsonParams, err := json.Marshal(pref)
+//TODO - test manually and with unit test - WORKING
+func (c *Client) UpdateMe(params map[string]Preferences) (User, error) {
+	jsonParams, err := json.Marshal(params)
 	if err != nil {
 		return User{}, err
 	}
