@@ -70,19 +70,12 @@ type Pushes struct {
 }
 
 type User struct {
-	Iden            string `json:"iden"`
-	Email           string `json:"email"`
-	EmailNormalized string `json:"email_normalized"`
-	Name            string `json:"name"`
-	ImageUrl        string `json:"image_url"`
-	Preferences     struct {
-		Onboarding struct {
-			App       bool `json:"app"`
-			Friends   bool `json:"friends"`
-			Extension bool `json:"extension"`
-		} `json:"onboarding"`
-		Social bool `json:"social"`
-	} `json:"preferences"`
+	Iden            string      `json:"iden"`
+	Email           string      `json:"email"`
+	EmailNormalized string      `json:"email_normalized"`
+	Name            string      `json:"name"`
+	ImageUrl        string      `json:"image_url"`
+	Preferences     Preferences `json:"preferences"`
 }
 
 type Preferences struct {
@@ -109,39 +102,6 @@ type UploadRequest struct {
 	} `json:"data"`
 }
 
-type Note struct {
-	title string
-	body  string
-	kind  string
-}
-
-type Link struct {
-	title string
-	body  string
-	url   string
-	kind  string
-}
-
-type Address struct {
-	name    string
-	address string
-	kind    string
-}
-
-type List struct {
-	title string
-	items []string
-	kind  string
-}
-
-type File struct {
-	fileName string
-	fileType string
-	fileUrl  string
-	body     string
-	kind     string
-}
-
 type Client struct {
 	token      string
 	HttpClient *http.Client
@@ -150,26 +110,6 @@ type Client struct {
 type Params map[string]interface{}
 
 type Endpoint map[string]string
-
-func NewNote(title, body string) *Note {
-	return &Note{title: title, body: body, kind: "note"}
-}
-
-func NewLink(title, body, url string) *Link {
-	return &Link{title: title, body: body, url: url, kind: "link"}
-}
-
-func NewAddress(name, address string) *Address {
-	return &Address{name: name, address: address, kind: "address"}
-}
-
-func NewList(title string, items ...string) *List {
-	return &List{title: title, items: items, kind: "list"}
-}
-
-func NewFile(fname, ftype, furl, body string) *File {
-	return &File{fileName: fname, fileType: ftype, fileUrl: furl, body: body, kind: "file"}
-}
 
 func NewClient(token string) *Client {
 	httpClient := &http.Client{}
