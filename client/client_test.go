@@ -98,8 +98,7 @@ func TestGetContacts(t *testing.T) {
 	var expected Contacts
 	err := json.Unmarshal([]byte(body), &expected)
 	if err != nil {
-		fmt.Println(err)
-		t.Errorf("Error unmarshalling JSON")
+		t.Errorf("Error unmarshalling JSON: %s", err)
 	}
 	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
 	client := newTestClient(fakeRT)
@@ -181,18 +180,139 @@ func TestGetMe(t *testing.T) {
 	}
 }
 
-func TestCreateDevice(t *testing.T) {
+func TestUpdateMe(t *testing.T) {
+	body := `
+	  {
+	    "iden": "ubdpjxxxOK0sKG",
+	    "email": "ryan@pushbullet.com",
+	    "email_normalized": "ryan@pushbullet.com",
+	    "created": 1357941753.8287899,
+	    "modified": 1399325992.1842301,
+	    "name": "Ryan Oldenburg",
+	    "image_url": "https://lh4.googleusercontent.com/-YGdcF2MteeI/AAAAAAAAAAI/AAAAAAAADPU/uo9z33FoEYs/photo.jpg",
+	    "preferences": {
+	      "onboarding": {
+		"app": false,
+		"friends": false,
+		"extension": false
+	      },
+	      "social": false
+	    }
+	  }
+	  `
+	var expected User
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshalling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	preferences := Preferences{Social: false}
+	obj := make(map[string]Preferences)
+	obj["preferences"] = preferences
+	got, _ := client.UpdateMe(obj)
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
+func TestSubscribe(t *testing.T) {
 	body := `
 	{
-	  "iden": "udm0Tdjz5A7bL4NM",
-	  "nickname": "stream_device",
-	  "created": 1401840789.2369599,
-	  "modified": 1401840789.2369699,
+	  "iden": "udprOsjAoRtnM0jc",
+	  "created": 1412047948.579029,
+	  "modified": 1412047948.5790315,
 	  "active": true,
-	  "type": "stream",
-	  "pushable": true
+	  "channel": {
+	    "iden": "ujxPklLhvyKsjAvkMyTVh6",
+	    "tag": "jblow",
+	    "name": "Jonathan Blow",
+	    "description": "New comments on the web by Jonathan Blow.",
+	    "image_url": "https://pushbullet.imgix.net/ujxPklLhvyK-6fXf4O2JQ1dBKQedhypIKwPX0lyFfwXW/jonathan-blow.png"
+	  }
 	}
-  `
+    `
+	var expected Subscription
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshalling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.Subscribe(Params{"channel_tag": "foobar"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
+func TestGetSubscriptions(t *testing.T) {
+	body := `
+	{
+	    "subscriptions": [
+	        {
+		  "iden": "udprOsjAsLtNTRAG",
+		  "created": 1411444346.969855,
+		  "modified": 1411444346.969857,
+		  "active": true,
+		  "channel": {
+		    "iden": "ujxPklLhvyKsjAvkMyTVh6",
+		    "tag": "jblow",
+		    "name": "Jonathan Blow",
+		    "description": "New comments on the web by Jonathan Blow.",
+		    "image_url": "https://pushbullet.imgix.net/ujxPklLhvyK-6fXf4O2JQ1dBKQedhypIKwPX0lyFfwXW/jonathan-blow.png"
+		  }
+		}
+	    ]
+	}
+    `
+	var expected Subscriptions
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshalling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.Subscriptions()
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
+func TestGetChannel(t *testing.T) {
+	body := `
+	{
+	  "iden": "ujxPklLhvyKsjAvkMyTVh6",
+	  "tag": "jblow",
+	  "name": "Jonathan Blow",
+	  "description": "New comments on the web by Jonathan Blow.",
+	  "image_url": "https://pushbullet.imgix.net/ujxPklLhvyK-6fXf4O2JQ1dBKQedhypIKwPX0lyFfwXW/jonathan-blow.png"
+	}
+    `
+	var expected Channel
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshalling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.GetChannel(Params{"tag": "foo"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
+func TestCreateDevice(t *testing.T) {
+	body := `
+	  {
+	    "iden": "udm0Tdjz5A7bL4NM",
+	    "nickname": "stream_device",
+	    "created": 1401840789.2369599,
+	    "modified": 1401840789.2369699,
+	    "active": true,
+	    "type": "stream",
+	    "pushable": true
+	  }
+    `
 	var expected Device
 	err := json.Unmarshal([]byte(body), &expected)
 	if err != nil {

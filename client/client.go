@@ -35,7 +35,6 @@ func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error
 	}
 	req.SetBasicAuth(c.token, "")
 	req.Header.Set("Content-Type", "application/json")
-	fmt.Println(req)
 	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		log.Println(err)
@@ -46,7 +45,7 @@ func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error
 	return data, resp.StatusCode, nil
 }
 
-//DONE
+//DONE - READY FOR RELEASE 0.0.1
 func (c *Client) GetMe() (User, error) {
 	body, _, err := c.do("GET", apiEndpoints["me"], nil)
 	if err != nil {
@@ -60,7 +59,7 @@ func (c *Client) GetMe() (User, error) {
 	return user, nil
 }
 
-//TODO - test manually and with unit test - WORKING
+//DONE - READY FOR RELEASE 0.0.1 -> review
 func (c *Client) UpdateMe(params map[string]Preferences) (User, error) {
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
@@ -79,7 +78,7 @@ func (c *Client) UpdateMe(params map[string]Preferences) (User, error) {
 	return user, nil
 }
 
-//DONE - need unit test
+//OK - ready to release
 func (c *Client) Subscribe(params Params) (Subscription, error) {
 	if _, ok := params["channel_tag"]; !ok {
 		return Subscription{}, errors.New("no channel tag parameter")
@@ -101,7 +100,7 @@ func (c *Client) Subscribe(params Params) (Subscription, error) {
 	return subscription, nil
 }
 
-//DONE - need unit test
+//OK - ready to release.
 func (c *Client) Subscriptions() (Subscriptions, error) {
 	body, _, err := c.do("GET", apiEndpoints["subscriptions"], nil)
 	if err != nil {
@@ -116,7 +115,7 @@ func (c *Client) Subscriptions() (Subscriptions, error) {
 	return subscriptions, nil
 }
 
-//DONE - need unit tests
+//OK - Ready to release.
 func (c *Client) GetChannel(params Params) (Channel, error) {
 	tag, ok := params["tag"]
 	if !ok {
