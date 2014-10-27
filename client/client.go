@@ -88,7 +88,7 @@ func (c *Client) Subscribe(params Params) (Subscription, error) {
 	if err != nil {
 		return Subscription{}, err
 	}
-	body, status, err := c.do("POST", apiEndpoints["subscriptions"], bytes.NewBuffer(jsonParams))
+	body, _, err := c.do("POST", apiEndpoints["subscriptions"], bytes.NewBuffer(jsonParams))
 	if err != nil {
 		log.Println(err)
 		return Subscription{}, err
