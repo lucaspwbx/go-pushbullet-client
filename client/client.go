@@ -43,7 +43,6 @@ func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error
 	}
 	defer resp.Body.Close()
 	data, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(resp.StatusCode)
 	return data, resp.StatusCode, nil
 }
 
@@ -90,7 +89,6 @@ func (c *Client) Subscribe(params Params) (Subscription, error) {
 		return Subscription{}, err
 	}
 	body, status, err := c.do("POST", apiEndpoints["subscriptions"], bytes.NewBuffer(jsonParams))
-	fmt.Println(status)
 	if err != nil {
 		log.Println(err)
 		return Subscription{}, err
@@ -127,7 +125,6 @@ func (c *Client) GetChannel(params Params) (Channel, error) {
 	endpoint := fmt.Sprintf(apiEndpoints["channels"]+"?tag=%s", tag)
 	body, _, err := c.do("GET", endpoint, nil)
 	if err != nil {
-		log.Println(err)
 		return Channel{}, err
 	}
 
@@ -176,7 +173,6 @@ func (c *Client) CreateContact(params Params) (Contact, error) {
 	}
 	body, _, err := c.do("POST", apiEndpoints["contacts"], bytes.NewBuffer(jsonParams))
 	if err != nil {
-		log.Println(err)
 		return Contact{}, err
 	}
 
@@ -202,7 +198,6 @@ func (c *Client) UpdateContact(params Params) (Contact, error) {
 	}
 	body, _, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
 	if err != nil {
-		log.Println(err)
 		return Contact{}, err
 	}
 
@@ -222,7 +217,6 @@ func (c *Client) DeleteContact(params Params) (int, error) {
 	endpoint := fmt.Sprintf(apiEndpoints["contacts"]+"/%s", id)
 	_, status, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
-		log.Println(err)
 		return -1, err
 	}
 	return status, nil
@@ -232,7 +226,6 @@ func (c *Client) DeleteContact(params Params) (int, error) {
 func (c *Client) GetDevices() (Devices, error) {
 	body, _, err := c.do("GET", apiEndpoints["devices"], nil)
 	if err != nil {
-		log.Println(err)
 		return Devices{}, err
 	}
 
@@ -251,7 +244,6 @@ func (c *Client) CreateDevice(params Params) (Device, error) {
 	}
 	body, _, err := c.do("POST", apiEndpoints["devices"], bytes.NewBuffer(jsonParams))
 	if err != nil {
-		log.Println(err)
 		return Device{}, err
 	}
 
@@ -277,7 +269,6 @@ func (c *Client) UpdateDevice(params Params) (Device, error) {
 	}
 	body, _, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
 	if err != nil {
-		log.Println(err)
 		return Device{}, err
 	}
 
@@ -297,7 +288,6 @@ func (c *Client) DeleteDevice(params Params) (int, error) {
 	endpoint := fmt.Sprintf(apiEndpoints["devices"]+"/%s", id)
 	_, status, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
-		log.Println(err)
 		return -1, err
 	}
 	return status, nil
@@ -308,7 +298,6 @@ func (c *Client) GetPushes() (Pushes, error) {
 	//TODO add params and allow modified_after
 	body, _, err := c.do("GET", apiEndpoints["pushes"], nil)
 	if err != nil {
-		log.Println(err)
 		return Pushes{}, err
 	}
 
@@ -348,7 +337,6 @@ func (c *Client) CreatePush(params Params) (Push, error) {
 	}
 	body, _, err := c.do("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonParams))
 	if err != nil {
-		log.Println(err)
 		return Push{}, err
 	}
 
@@ -373,7 +361,6 @@ func (c *Client) UpdatePush(params Params) (Push, error) {
 	}
 	body, _, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
 	if err != nil {
-		log.Println(err)
 		return Push{}, err
 	}
 
@@ -393,7 +380,6 @@ func (c *Client) DeletePush(params Params) (int, error) {
 	endpoint := fmt.Sprintf(apiEndpoints["pushes"]+"/%s", id)
 	_, status, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
-		log.Println(err)
 		return -1, err
 	}
 	return status, nil
@@ -413,7 +399,6 @@ func (c *Client) UploadRequest(params Params) (UploadRequest, error) {
 	}
 	body, _, err := c.do("POST", apiEndpoints["upload_request"], bytes.NewBuffer(jsonParams))
 	if err != nil {
-		log.Println(err)
 		return UploadRequest{}, err
 	}
 
