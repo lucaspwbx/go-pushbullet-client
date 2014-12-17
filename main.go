@@ -1,10 +1,6 @@
 package main
 
-import (
-	"fmt"
-
-	"github.com/lucasweiblen/pushbulletclient/client"
-)
+import "github.com/lucasweiblen/pushbulletclient/client"
 
 func main() {
 	///cli := client.NewClient("token")
@@ -78,8 +74,8 @@ func main() {
 	//}
 	//fmt.Println(up)
 	//usr, _ := cli.UpdateMe(client.Preferences{Social: true})
-	obj := make(map[string]client.Preferences)
-	obj["preferences"] = client.Preferences{Social: false}
-	usr, _ := cli.UpdateMe(obj)
-	fmt.Println(usr)
+	//obj := make(map[string]client.Preferences)
+	//obj["preferences"] = client.Preferences{Social: false}
+	//usr, _ := cli.UpdateMe(obj)
+	//fmt.Println(usr)
 }
