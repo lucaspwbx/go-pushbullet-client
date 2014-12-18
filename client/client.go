@@ -25,6 +25,7 @@ var (
 		"channels":       v2Api + "channel-info",
 		"upload_request": v2Api + "upload-request",
 	}
+	noChannelTagError = errors.New("No channel tag parameter")
 )
 
 type HttpError struct {
@@ -36,6 +37,7 @@ func (e *HttpError) Error() string {
 	return fmt.Sprintf("Status: %d, Message: %s", e.Status, e.Message)
 }
 
+// WILL BE REMOVED
 func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error) {
 	req, err := http.NewRequest(method, endpoint, body)
 	if err != nil {
@@ -107,7 +109,7 @@ func (c *Client) GetMe() (User, error) {
 	return user, nil
 }
 
-//DONE - READY FOR RELEASE 0.0.1 -> review
+//12/2014 - needing a review
 func (c *Client) UpdateMe(params map[string]Preferences) (User, error) {
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
@@ -126,18 +128,17 @@ func (c *Client) UpdateMe(params map[string]Preferences) (User, error) {
 	return user, nil
 }
 
-//OK - ready to release
+// UPDATED - 12/2014 -> need new test
 func (c *Client) Subscribe(params Params) (Subscription, error) {
 	if _, ok := params["channel_tag"]; !ok {
-		return Subscription{}, errors.New("no channel tag parameter")
+		return Subscription{}, noChannelTagError
 	}
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
 		return Subscription{}, err
 	}
-	body, _, err := c.do("POST", apiEndpoints["subscriptions"], bytes.NewBuffer(jsonParams))
+	body, err := c.do2("POST", apiEndpoints["subscriptions"], bytes.NewBuffer(jsonParams))
 	if err != nil {
-		log.Println(err)
 		return Subscription{}, err
 	}
 
