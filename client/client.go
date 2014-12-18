@@ -25,6 +25,7 @@ var (
 		"channels":       v2Api + "channel-info",
 		"upload_request": v2Api + "upload-request",
 	}
+	noChannelTagError = errors.New("No channel tag parameter")
 )
 
 type HttpError struct {
@@ -32,10 +33,11 @@ type HttpError struct {
 	Message string
 }
 
-func (e HttpError) Error() string {
+func (e *HttpError) Error() string {
 	return fmt.Sprintf("Status: %d, Message: %s", e.Status, e.Message)
 }
 
+// WILL BE REMOVED
 func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error) {
 	req, err := http.NewRequest(method, endpoint, body)
 	if err != nil {
@@ -76,19 +78,19 @@ func (c *Client) do2(method, endpoint string, body io.Reader) ([]byte, error) {
 		return data, nil
 	} else {
 		if resp.StatusCode == http.StatusBadRequest {
-			return nil, HttpError{Status: resp.StatusCode, Message: "Bad Request"}
+			return nil, &HttpError{Status: resp.StatusCode, Message: "Bad Request"}
 		}
 		if resp.StatusCode == http.StatusUnauthorized {
-			return nil, HttpError{Status: resp.StatusCode, Message: "Unauthorized"}
+			return nil, &HttpError{Status: resp.StatusCode, Message: "Unauthorized"}
 		}
 		if resp.StatusCode == http.StatusForbidden {
-			return nil, HttpError{Status: resp.StatusCode, Message: "Forbidden"}
+			return nil, &HttpError{Status: resp.StatusCode, Message: "Forbidden"}
 		}
 		if resp.StatusCode == http.StatusNotFound {
-			return nil, HttpError{Status: resp.StatusCode, Message: "StatusNotFound"}
+			return nil, &HttpError{Status: resp.StatusCode, Message: "StatusNotFound"}
 		}
 		if resp.StatusCode == http.StatusInternalServerError {
-			return nil, HttpError{Status: resp.StatusCode, Message: "Internal Server Error"}
+			return nil, &HttpError{Status: resp.StatusCode, Message: "Internal Server Error"}
 		}
 	}
 	return nil, nil
@@ -107,7 +109,7 @@ func (c *Client) GetMe() (User, error) {
 	return user, nil
 }
 
-//DONE - READY FOR RELEASE 0.0.1 -> review
+//12/2014 - needing a review
 func (c *Client) UpdateMe(params map[string]Preferences) (User, error) {
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
@@ -126,18 +128,17 @@ func (c *Client) UpdateMe(params map[string]Preferences) (User, error) {
 	return user, nil
 }
 
-//OK - ready to release
+// UPDATED - 12/2014 -> need new test
 func (c *Client) Subscribe(params Params) (Subscription, error) {
 	if _, ok := params["channel_tag"]; !ok {
-		return Subscription{}, errors.New("no channel tag parameter")
+		return Subscription{}, noChannelTagError
 	}
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
 		return Subscription{}, err
 	}
-	body, _, err := c.do("POST", apiEndpoints["subscriptions"], bytes.NewBuffer(jsonParams))
+	body, err := c.do2("POST", apiEndpoints["subscriptions"], bytes.NewBuffer(jsonParams))
 	if err != nil {
-		log.Println(err)
 		return Subscription{}, err
 	}
 

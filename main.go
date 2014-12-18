@@ -22,4 +22,17 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	// returns error -> no channel tag parameter
+	_, err = cli.Subscribe(client.Params{})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//subscribe to channel tag
+	subscription, err := cli.Subscribe(client.Params{"channel_tag": "jblow"})
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println(subscription)
 }
