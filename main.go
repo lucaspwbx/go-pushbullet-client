@@ -1,9 +1,25 @@
 package main
 
+import (
+	"fmt"
+	"log"
+
+	"github.com/lucasweiblen/pushbulletclient/client"
+)
+
 func main() {
-	//cli := client.NewClient("swbpcaTIjyV5eAYZnjfL2GZqFiiqrBHH")
-	//obj := make(map[string]client.Preferences)
-	//obj["preferences"] = client.Preferences{Social: false}
-	//usr, _ := cli.UpdateMe(obj)
-	//fmt.Println(usr)
+	//200
+	cli := client.NewClient("swbpcaTIjyV5eAYZnjfL2GZqFiiqrBHH")
+	user, err := cli.GetMe()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println(user)
+
+	//400
+	cli2 := client.NewClient("foo")
+	_, err = cli2.GetMe()
+	if err != nil {
+		fmt.Println(err)
+	}
 }

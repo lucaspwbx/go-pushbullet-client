@@ -27,6 +27,15 @@ var (
 	}
 )
 
+type HttpError struct {
+	Status  int
+	Message string
+}
+
+func (e HttpError) Error() string {
+	return fmt.Sprintf("Status: %d, Message: %s", e.Status, e.Message)
+}
+
 func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error) {
 	req, err := http.NewRequest(method, endpoint, body)
 	if err != nil {
@@ -45,11 +54,50 @@ func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error
 	return data, resp.StatusCode, nil
 }
 
-//DONE - READY FOR RELEASE 0.0.1
-func (c *Client) GetMe() (User, error) {
-	body, _, err := c.do("GET", apiEndpoints["me"], nil)
+func (c *Client) do2(method, endpoint string, body io.Reader) ([]byte, error) {
+	req, err := http.NewRequest(method, endpoint, body)
 	if err != nil {
 		log.Println(err)
+		return nil, err
+	}
+	req.SetBasicAuth(c.token, "")
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.HttpClient.Do(req)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusOK {
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Println(err)
+		}
+		return data, nil
+	} else {
+		if resp.StatusCode == http.StatusBadRequest {
+			return nil, HttpError{Status: resp.StatusCode, Message: "Bad Request"}
+		}
+		if resp.StatusCode == http.StatusUnauthorized {
+			return nil, HttpError{Status: resp.StatusCode, Message: "Unauthorized"}
+		}
+		if resp.StatusCode == http.StatusForbidden {
+			return nil, HttpError{Status: resp.StatusCode, Message: "Forbidden"}
+		}
+		if resp.StatusCode == http.StatusNotFound {
+			return nil, HttpError{Status: resp.StatusCode, Message: "StatusNotFound"}
+		}
+		if resp.StatusCode == http.StatusInternalServerError {
+			return nil, HttpError{Status: resp.StatusCode, Message: "Internal Server Error"}
+		}
+	}
+	return nil, nil
+}
+
+// UPDATED - 12/2014 -> need new test
+func (c *Client) GetMe() (User, error) {
+	body, err := c.do2("GET", apiEndpoints["me"], nil)
+	if err != nil {
 		return User{}, err
 	}
 	var user User
