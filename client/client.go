@@ -32,7 +32,7 @@ type HttpError struct {
 	Message string
 }
 
-func (e HttpError) Error() string {
+func (e *HttpError) Error() string {
 	return fmt.Sprintf("Status: %d, Message: %s", e.Status, e.Message)
 }
 
@@ -76,19 +76,19 @@ func (c *Client) do2(method, endpoint string, body io.Reader) ([]byte, error) {
 		return data, nil
 	} else {
 		if resp.StatusCode == http.StatusBadRequest {
-			return nil, HttpError{Status: resp.StatusCode, Message: "Bad Request"}
+			return nil, &HttpError{Status: resp.StatusCode, Message: "Bad Request"}
 		}
 		if resp.StatusCode == http.StatusUnauthorized {
-			return nil, HttpError{Status: resp.StatusCode, Message: "Unauthorized"}
+			return nil, &HttpError{Status: resp.StatusCode, Message: "Unauthorized"}
 		}
 		if resp.StatusCode == http.StatusForbidden {
-			return nil, HttpError{Status: resp.StatusCode, Message: "Forbidden"}
+			return nil, &HttpError{Status: resp.StatusCode, Message: "Forbidden"}
 		}
 		if resp.StatusCode == http.StatusNotFound {
-			return nil, HttpError{Status: resp.StatusCode, Message: "StatusNotFound"}
+			return nil, &HttpError{Status: resp.StatusCode, Message: "StatusNotFound"}
 		}
 		if resp.StatusCode == http.StatusInternalServerError {
-			return nil, HttpError{Status: resp.StatusCode, Message: "Internal Server Error"}
+			return nil, &HttpError{Status: resp.StatusCode, Message: "Internal Server Error"}
 		}
 	}
 	return nil, nil
