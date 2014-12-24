@@ -32,7 +32,30 @@ func main() {
 	//subscribe to channel tag
 	subscription, err := cli.Subscribe(client.Params{"channel_tag": "jblow"})
 	if err != nil {
-		log.Fatalln(err)
+		//	log.Fatalln(err)
+		fmt.Println(err)
 	}
 	fmt.Println(subscription)
+
+	//getting subscriptions
+	subs, err := cli.Subscriptions()
+	if err != nil {
+		//	log.Fatalln(err)
+		fmt.Println(err)
+	}
+	fmt.Println(subs)
+
+	ch, err := cli.GetChannel(client.Params{"tag": "jblow"})
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(ch)
+
+	//removing subscription
+	err = cli.Unsubscribe2(client.Params{"iden": "ujvSxVpCjh6sjAgWOzmngO"})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("subscription removed with sucess")
 }

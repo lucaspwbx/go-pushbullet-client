@@ -26,6 +26,7 @@ var (
 		"upload_request": v2Api + "upload-request",
 	}
 	noChannelTagError = errors.New("No channel tag parameter")
+	noIdenError       = errors.New("No iden parameter")
 )
 
 type HttpError struct {
@@ -149,11 +150,10 @@ func (c *Client) Subscribe(params Params) (Subscription, error) {
 	return subscription, nil
 }
 
-//OK - ready to release.
+//UPDATED - 12/2014 - need new test
 func (c *Client) Subscriptions() (Subscriptions, error) {
-	body, _, err := c.do("GET", apiEndpoints["subscriptions"], nil)
+	body, err := c.do2("GET", apiEndpoints["subscriptions"], nil)
 	if err != nil {
-		log.Println(err)
 		return Subscriptions{}, err
 	}
 
@@ -164,14 +164,14 @@ func (c *Client) Subscriptions() (Subscriptions, error) {
 	return subscriptions, nil
 }
 
-//OK - Ready to release.
+//UPDATED - 12/2014 - need new test
 func (c *Client) GetChannel(params Params) (Channel, error) {
 	tag, ok := params["tag"]
 	if !ok {
-		return Channel{}, errors.New("No tag")
+		return Channel{}, noChannelTagError
 	}
 	endpoint := fmt.Sprintf(apiEndpoints["channels"]+"?tag=%s", tag)
-	body, _, err := c.do("GET", endpoint, nil)
+	body, err := c.do2("GET", endpoint, nil)
 	if err != nil {
 		return Channel{}, err
 	}
@@ -183,19 +183,18 @@ func (c *Client) GetChannel(params Params) (Channel, error) {
 	return channel, nil
 }
 
-//DONE - need unit test
-func (c *Client) Unsubscribe(params Params) (int, error) {
+//UPDATED - 12/2014 - need new tests
+func (c *Client) Unsubscribe(params Params) error {
 	id, ok := params["iden"]
 	if !ok {
-		return -1, errors.New("No id")
+		return noIdenError
 	}
 	endpoint := fmt.Sprintf(apiEndpoints["subscriptions"]+"/%s", id)
-	_, status, err := c.do("DELETE", endpoint, nil)
+	_, err := c.do2("DELETE", endpoint, nil)
 	if err != nil {
-		log.Println(err)
-		return -1, err
+		return err
 	}
-	return status, nil
+	return nil
 }
 
 //DONE - Review case of active/non active contacts
