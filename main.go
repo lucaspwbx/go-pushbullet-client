@@ -74,10 +74,17 @@ func main() {
 	//}
 	//fmt.Println(contact)
 
-	err = cli.DeleteContact(client.Params{"iden": "ujvSxVpCjh6sjArHrh8WLA"})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println("Removed")
+	//err = cli.DeleteContact(client.Params{"iden": "ujvSxVpCjh6sjArHrh8WLA"})
+	//if err != nil {
+	//fmt.Println(err)
+	//return
+	//}
+	//fmt.Println("Removed")
+
+	//_, err = cli.CreateDevice(client.Params{"nickname": "foobar"})
+	//if err != nil {
+	//fmt.Println(err)
+	//}
+	devices, _ := cli.GetDevices()
+	fmt.Println(devices)
 }

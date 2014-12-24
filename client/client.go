@@ -282,9 +282,9 @@ func (c *Client) DeleteContact(params Params) error {
 	return nil
 }
 
-//DONE - need to review edge case
+//UPDATED - 12/2014 - need new tests
 func (c *Client) GetDevices() (Devices, error) {
-	body, _, err := c.do("GET", apiEndpoints["devices"], nil)
+	body, err := c.do2("GET", apiEndpoints["devices"], nil)
 	if err != nil {
 		return Devices{}, err
 	}
@@ -296,13 +296,19 @@ func (c *Client) GetDevices() (Devices, error) {
 	return devices, nil
 }
 
-//DONE - need to review parameters that should pass or not
+//UPDATED - 12/2014 - need new tests
 func (c *Client) CreateDevice(params Params) (Device, error) {
+	if _, ok := params["nickname"]; !ok {
+		return Device{}, errors.New("no nickname has been given")
+	}
+	if _, ok := params["type"]; !ok {
+		return Device{}, errors.New("no type has been given")
+	}
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
 		return Device{}, err
 	}
-	body, _, err := c.do("POST", apiEndpoints["devices"], bytes.NewBuffer(jsonParams))
+	body, err := c.do2("POST", apiEndpoints["devices"], bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Device{}, err
 	}
@@ -314,11 +320,11 @@ func (c *Client) CreateDevice(params Params) (Device, error) {
 	return device, nil
 }
 
-//DONE
+//UPDATED - 12/2014 - need new tests
 func (c *Client) UpdateDevice(params Params) (Device, error) {
 	id, ok := params["iden"]
 	if !ok {
-		return Device{}, errors.New("No id")
+		return Device{}, noIdenError
 	}
 	delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["devices"]+"/%s", id)
@@ -327,7 +333,7 @@ func (c *Client) UpdateDevice(params Params) (Device, error) {
 	if err != nil {
 		return Device{}, err
 	}
-	body, _, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
+	body, err := c.do2("POST", endpoint, bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Device{}, err
 	}
@@ -339,18 +345,18 @@ func (c *Client) UpdateDevice(params Params) (Device, error) {
 	return device, nil
 }
 
-//DONE
-func (c *Client) DeleteDevice(params Params) (int, error) {
+//UPDATED - 12/2014 - need new tests
+func (c *Client) DeleteDevice(params Params) error {
 	id, ok := params["iden"]
 	if !ok {
-		return -1, errors.New("No id")
+		return noIdenError
 	}
 	endpoint := fmt.Sprintf(apiEndpoints["devices"]+"/%s", id)
-	_, status, err := c.do("DELETE", endpoint, nil)
+	_, err := c.do2("DELETE", endpoint, nil)
 	if err != nil {
-		return -1, err
+		return err
 	}
-	return status, nil
+	return nil
 }
 
 //REVIEW
