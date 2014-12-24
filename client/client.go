@@ -413,10 +413,11 @@ func (c *Client) CreatePush(params Params) (Push, error) {
 	return push, nil
 }
 
+//UPDATED - 12/2014 - need new tests
 func (c *Client) UpdatePush(params Params) (Push, error) {
 	id, ok := params["iden"]
 	if !ok {
-		return Push{}, errors.New("No id")
+		return Push{}, noIdenError
 	}
 	delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["pushes"]+"/%s", id)
@@ -425,7 +426,7 @@ func (c *Client) UpdatePush(params Params) (Push, error) {
 	if err != nil {
 		return Push{}, err
 	}
-	body, _, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
+	body, err := c.do2("POST", endpoint, bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Push{}, err
 	}
@@ -437,18 +438,18 @@ func (c *Client) UpdatePush(params Params) (Push, error) {
 	return push, nil
 }
 
-//DONE
-func (c *Client) DeletePush(params Params) (int, error) {
+//UPDATED - 12/2014 - need new tests
+func (c *Client) DeletePush(params Params) error {
 	id, ok := params["iden"]
 	if !ok {
-		return -1, errors.New("No id")
+		return noIdenError
 	}
 	endpoint := fmt.Sprintf(apiEndpoints["pushes"]+"/%s", id)
-	_, status, err := c.do("DELETE", endpoint, nil)
+	_, err := c.do2("DELETE", endpoint, nil)
 	if err != nil {
-		return -1, err
+		return err
 	}
-	return status, nil
+	return nil
 }
 
 //DONE - need unit test
