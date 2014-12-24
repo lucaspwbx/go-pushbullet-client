@@ -67,10 +67,17 @@ func main() {
 	}
 	fmt.Println(contacts)
 
-	contact, err := cli.CreateContact(client.Params{"name": "joao", "email": "joao@foo.com"})
+	//contact, err := cli.CreateContact(client.Params{"name": "joao", "email": "joao@foo.com"})
+	//if err != nil {
+	//fmt.Println(err)
+	//return
+	//}
+	//fmt.Println(contact)
+
+	err = cli.DeleteContact(client.Params{"iden": "ujvSxVpCjh6sjArHrh8WLA"})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(contact)
+	fmt.Println("Removed")
 }

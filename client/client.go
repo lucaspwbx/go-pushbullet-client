@@ -222,10 +222,10 @@ func (c *Client) GetContacts() (Contacts, error) {
 //UPDATED - 12/2014 - need new tests
 func (c *Client) CreateContact(params Params) (Contact, error) {
 	if _, ok := params["name"]; !ok {
-		return Contact{}, RequiredParameterError{Name: "name"}
+		return Contact{}, errors.New("no name has been given")
 	}
 	if _, ok := params["email"]; !ok {
-		return Contact{}, RequiredParameterError{Name: "email"}
+		return Contact{}, errors.New("no email has been given")
 	}
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
@@ -243,11 +243,11 @@ func (c *Client) CreateContact(params Params) (Contact, error) {
 	return contact, nil
 }
 
-//DONE
+//UPDATED - 12/2014 - need new tests
 func (c *Client) UpdateContact(params Params) (Contact, error) {
 	id, ok := params["iden"]
 	if !ok {
-		return Contact{}, errors.New("No id")
+		return Contact{}, noIdenError
 	}
 	delete(params, "iden")
 	endpoint := fmt.Sprintf(apiEndpoints["contacts"]+"/%s", id)
@@ -256,7 +256,7 @@ func (c *Client) UpdateContact(params Params) (Contact, error) {
 	if err != nil {
 		return Contact{}, err
 	}
-	body, _, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
+	body, err := c.do2("POST", endpoint, bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Contact{}, err
 	}
@@ -268,18 +268,18 @@ func (c *Client) UpdateContact(params Params) (Contact, error) {
 	return contact, nil
 }
 
-//DONE
-func (c *Client) DeleteContact(params Params) (int, error) {
+//UPDATED - 12/2014 - need new tests
+func (c *Client) DeleteContact(params Params) error {
 	id, ok := params["iden"]
 	if !ok {
-		return -1, errors.New("No id")
+		return noIdenError
 	}
 	endpoint := fmt.Sprintf(apiEndpoints["contacts"]+"/%s", id)
-	_, status, err := c.do("DELETE", endpoint, nil)
+	_, err := c.do2("DELETE", endpoint, nil)
 	if err != nil {
-		return -1, err
+		return err
 	}
-	return status, nil
+	return nil
 }
 
 //DONE - need to review edge case
