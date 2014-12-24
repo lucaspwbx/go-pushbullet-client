@@ -52,10 +52,25 @@ func main() {
 	fmt.Println(ch)
 
 	//removing subscription
-	err = cli.Unsubscribe2(client.Params{"iden": "ujvSxVpCjh6sjAgWOzmngO"})
+	//err = cli.Unsubscribe2(client.Params{"iden": "ujvSxVpCjh6sjAgWOzmngO"})
+	//if err != nil {
+	//fmt.Println(err)
+	//return
+	//}
+	//fmt.Println("subscription removed with sucess")
+
+	fmt.Println("----------")
+	contacts, err := cli.GetContacts()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("subscription removed with sucess")
+	fmt.Println(contacts)
+
+	contact, err := cli.CreateContact(client.Params{"name": "joao", "email": "joao@foo.com"})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(contact)
 }

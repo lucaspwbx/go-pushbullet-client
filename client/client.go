@@ -34,8 +34,16 @@ type HttpError struct {
 	Message string
 }
 
+type RequiredParameterError struct {
+	Name string
+}
+
 func (e *HttpError) Error() string {
 	return fmt.Sprintf("Status: %d, Message: %s", e.Status, e.Message)
+}
+
+func (e *RequiredParameterError) Error() string {
+	return fmt.Sprintf("Required parameter %s has not been given", e.Name)
 }
 
 // WILL BE REMOVED
@@ -197,11 +205,10 @@ func (c *Client) Unsubscribe(params Params) error {
 	return nil
 }
 
-//DONE - Review case of active/non active contacts
+//UPDATED - 12/2014 - need new tests and review of active/non active contacts
 func (c *Client) GetContacts() (Contacts, error) {
-	body, _, err := c.do("GET", apiEndpoints["contacts"], nil)
+	body, err := c.do2("GET", apiEndpoints["contacts"], nil)
 	if err != nil {
-		log.Println(err)
 		return Contacts{}, err
 	}
 
@@ -212,13 +219,19 @@ func (c *Client) GetContacts() (Contacts, error) {
 	return contacts, nil
 }
 
-//DONE
+//UPDATED - 12/2014 - need new tests
 func (c *Client) CreateContact(params Params) (Contact, error) {
+	if _, ok := params["name"]; !ok {
+		return Contact{}, RequiredParameterError{Name: "name"}
+	}
+	if _, ok := params["email"]; !ok {
+		return Contact{}, RequiredParameterError{Name: "email"}
+	}
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
 		return Contact{}, err
 	}
-	body, _, err := c.do("POST", apiEndpoints["contacts"], bytes.NewBuffer(jsonParams))
+	body, err := c.do2("POST", apiEndpoints["contacts"], bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Contact{}, err
 	}
