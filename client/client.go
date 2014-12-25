@@ -36,16 +36,8 @@ type HttpError struct {
 	Message string
 }
 
-type RequiredParameterError struct {
-	Name string
-}
-
 func (e *HttpError) Error() string {
 	return fmt.Sprintf("Status: %d, Message: %s", e.Status, e.Message)
-}
-
-func (e *RequiredParameterError) Error() string {
-	return fmt.Sprintf("Required parameter %s has not been given", e.Name)
 }
 
 // WILL BE REMOVED
@@ -455,7 +447,7 @@ func (c *Client) DeletePush(params Params) error {
 }
 
 //UPDATED - 12/2014 - need new tests
-func (c *Client) UploadRequest(params Params) (UploadRequest, error) {
+func (c *Client) uploadRequest(params Params) (UploadRequest, error) {
 	if _, ok := params["file_name"]; !ok {
 		return UploadRequest{}, noFileNameError
 	}
@@ -478,17 +470,18 @@ func (c *Client) UploadRequest(params Params) (UploadRequest, error) {
 	return uploadRequest, nil
 }
 
-func (c *Client) Upload(path string) (int, error) {
+//UPDATED - 12/2014 - need new tests
+func (c *Client) Upload(filename, filetype, path string) error {
 	req, err := c.UploadRequest(Params{
-		"file_name": "teste.txt",
-		"file_type": "text/plain",
+		"file_name": filename,
+		"file_type": filetype,
 	})
 	if err != nil {
-		return -1, errors.New("Bad upload request")
+		return err
 	}
 	file, err := os.Open(path)
 	if err != nil {
-		return -1, errors.New("no file")
+		return err
 	}
 	defer file.Close()
 
@@ -502,28 +495,27 @@ func (c *Client) Upload(path string) (int, error) {
 	writer.WriteField("content-type", req.Data.ContentType)
 	part, err := writer.CreateFormFile("file", filepath.Base(path))
 	if err != nil {
-		return -1, errors.New("Error creating form file")
+		return err
 	}
+
 	if _, err = io.Copy(part, file); err != nil {
-		return -1, errors.New("Error copying file")
+		return err
 	}
 	err = writer.Close()
 	if err != nil {
-		return -1, errors.New("Error closing file")
+		return err
 	}
-	upload_req, err := http.NewRequest("POST", req.UploadUrl, body)
-	upload_req.Header.Set("Content-Type", writer.FormDataContentType())
-	fmt.Println(upload_req)
+	uploadReq, err := http.NewRequest("POST", req.UploadUrl, body)
+	uploadReq.Header.Set("Content-Type", writer.FormDataContentType())
 	if err != nil {
-		return -1, errors.New("Error creating POST REQUEST")
+		return err
 	}
 	client := &http.Client{}
-	resp, err := client.Do(upload_req)
+	resp, err := client.Do(uploadReq)
 	if err != nil {
-		return -1, errors.New("Error doing request")
+		return err
 	}
-	data, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(data))
-
-	return resp.StatusCode, nil
+	//data, _ := ioutil.ReadAll(resp.Body)
+	//fmt.Println(string(data))
+	return nil
 }

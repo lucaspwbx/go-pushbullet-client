@@ -88,10 +88,15 @@ func main() {
 	devices, _ := cli.GetDevices()
 	fmt.Println(devices)
 
-	newReq, err := cli.UploadRequest(client.Params{"file_name": "teste", "file_type": "text"})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(newReq)
+	//newReq, err := cli.UploadRequest(client.Params{"file_name": "teste", "file_type": "text"})
+	//if err != nil {
+	//fmt.Println(err)
+	//	return
+	//}
+	//err = cli.Upload2("teste.txt", "text/plain", "teste.txt")
+	//if err != nil {
+	//fmt.Println(err)
+	//return
+	//}
+	//fmt.Println("OK")
 }
