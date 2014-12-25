@@ -497,7 +497,6 @@ func (c *Client) Upload(filename, filetype, path string) error {
 	if err != nil {
 		return err
 	}
-
 	if _, err = io.Copy(part, file); err != nil {
 		return err
 	}
