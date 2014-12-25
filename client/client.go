@@ -27,6 +27,8 @@ var (
 	}
 	noChannelTagError = errors.New("No channel tag parameter")
 	noIdenError       = errors.New("No iden parameter")
+	noFileNameError   = errors.New("No file name")
+	noFileTypeError   = errors.New("No file type")
 )
 
 type HttpError struct {
@@ -452,19 +454,19 @@ func (c *Client) DeletePush(params Params) error {
 	return nil
 }
 
-//DONE - need unit test
+//UPDATED - 12/2014 - need new tests
 func (c *Client) UploadRequest(params Params) (UploadRequest, error) {
 	if _, ok := params["file_name"]; !ok {
-		return UploadRequest{}, errors.New("No file name")
+		return UploadRequest{}, noFileNameError
 	}
 	if _, ok := params["file_type"]; !ok {
-		return UploadRequest{}, errors.New("no file type")
+		return UploadRequest{}, noFileTypeError
 	}
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
 		return UploadRequest{}, err
 	}
-	body, _, err := c.do("POST", apiEndpoints["upload_request"], bytes.NewBuffer(jsonParams))
+	body, err := c.do2("POST", apiEndpoints["upload_request"], bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return UploadRequest{}, err
 	}
