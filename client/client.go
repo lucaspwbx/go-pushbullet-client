@@ -161,7 +161,11 @@ func (c *Client) Subscribe(params Params) (Subscription, error) {
 	return subscription, nil
 }
 
-//UPDATED - 12/2014 - need new test
+// Get all subscriptions.
+// See: https://api.pushbullet.com/v2/subscriptions
+//
+// Usage:
+//   subscriptions, err := client.Subscribtions()
 func (c *Client) Subscriptions() ([]Subscription, error) {
 	body, err := c.do("GET", apiEndpoints["subscriptions"], nil)
 	if err != nil {
@@ -175,7 +179,13 @@ func (c *Client) Subscriptions() ([]Subscription, error) {
 	return resultSet.Subscriptions, nil
 }
 
-//UPDATED - 12/2014 - need new test
+// Get information about a channel.
+// See: https://docs.pushbullet.com/v2/subscriptions/
+//
+// Usage:
+//   channel, err := client.GetChannel(client.Params{"tag": "jblow"})
+//
+// If no channel tag is passed, a noChannelTagError will be returned.
 func (c *Client) GetChannel(params Params) (Channel, error) {
 	tag, ok := params["tag"]
 	if !ok {
@@ -194,7 +204,13 @@ func (c *Client) GetChannel(params Params) (Channel, error) {
 	return channel, nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Unsubscribe from a channel.
+// See: https://api.pushbullet.com/v2/subscriptions
+
+// Usage:
+//   client.Subscribe(client.Params{"iden": "0xbababcdk"})
+//
+// If no iden is passed a noIdenError will be returned.
 func (c *Client) Unsubscribe(params Params) error {
 	id, ok := params["iden"]
 	if !ok {
