@@ -25,10 +25,15 @@ var (
 		"channels":       v2Api + "channel-info",
 		"upload_request": v2Api + "upload-request",
 	}
-	noChannelTagError = errors.New("No channel tag parameter")
-	noIdenError       = errors.New("No iden parameter")
-	noFileNameError   = errors.New("No file name")
-	noFileTypeError   = errors.New("No file type")
+	noChannelTagError  = errors.New("No channel tag parameter")
+	noIdenError        = errors.New("No iden parameter")
+	noFileNameError    = errors.New("No file name")
+	noFileTypeError    = errors.New("No file type")
+	pushNoLinkError    = errors.New("No link for push of type link")
+	pushNoAddressError = errors.New("No address for push of type address")
+	pushNoItemsError   = errors.New("No items for push of type checklist")
+	pushNoUrlError     = errors.New("No url for push of type file")
+	pushNoTypeError    = errors.New("No type error")
 )
 
 type HttpError struct {
@@ -349,27 +354,29 @@ func (c *Client) GetPushes() ([]Push, error) {
 	return resultSet.Pushes, nil
 }
 
+var ()
+
 //DONE for note, link, address, checklist. Missing file implementation
 func (c *Client) CreatePush(params Params) (Push, error) {
 	if _, ok := params["type"]; !ok {
-		return Push{}, errors.New("no type")
+		return Push{}, pushNoTypeError
 	}
 	switch params["type"] {
 	case "link":
 		if _, ok := params["link"]; !ok {
-			return Push{}, errors.New("no link for push of type link")
+			return Push{}, pushNoLinkError
 		}
 	case "address":
 		if _, ok := params["address"]; !ok {
-			return Push{}, errors.New("no address for push of type address")
+			return Push{}, pushNoAddressError
 		}
 	case "list":
 		if _, ok := params["items"]; !ok {
-			return Push{}, errors.New("No items for push of type checklist")
+			return Push{}, pushNoItemsError
 		}
 	case "file":
 		if _, ok := params["file_url"]; !ok {
-			return Push{}, errors.New("No url for push of type file")
+			return Push{}, pushNoUrlError
 		}
 	}
 	jsonParams, err := json.Marshal(params)
