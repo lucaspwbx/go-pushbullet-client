@@ -206,9 +206,9 @@ func (c *Client) GetChannel(params Params) (Channel, error) {
 
 // Unsubscribe from a channel.
 // See: https://api.pushbullet.com/v2/subscriptions
-
+//
 // Usage:
-//   client.Subscribe(client.Params{"iden": "0xbababcdk"})
+//   err := client.Subscribe(client.Params{"iden": "0xbababcdk"})
 //
 // If no iden is passed a noIdenError will be returned.
 func (c *Client) Unsubscribe(params Params) error {
@@ -225,6 +225,11 @@ func (c *Client) Unsubscribe(params Params) error {
 }
 
 //UPDATED - 12/2014 - need new tests and review of active/non active contacts
+// Get contacts.
+// See: https://docs.pushbullet.com/v2/contacts/
+//
+// Usage:
+//   contacts, err := client.GetContacts()
 func (c *Client) GetContacts() ([]Contact, error) {
 	body, err := c.do("GET", apiEndpoints["contacts"], nil)
 	if err != nil {
@@ -238,7 +243,11 @@ func (c *Client) GetContacts() ([]Contact, error) {
 	return resultSet.Contacts, nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Create contact.
+// See: https://docs.pushbullet.com/v2/contacts/
+//
+// Usage:
+//   contact, err := client.CreateContact(client.Params{"name": "foo", "email": "bar"})
 func (c *Client) CreateContact(params Params) (Contact, error) {
 	if _, ok := params["name"]; !ok {
 		return Contact{}, errors.New("no name has been given")
@@ -262,7 +271,13 @@ func (c *Client) CreateContact(params Params) (Contact, error) {
 	return contact, nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Update contact.
+// See: https://docs.pushbullet.com/v2/contacts/
+//
+// Usage:
+//   contact, err := client.UpdateContact(client.Params{"iden": "0xyz", "name": "foo"})
+//
+// If no iden is passed a noIdenError is returned.
 func (c *Client) UpdateContact(params Params) (Contact, error) {
 	id, ok := params["iden"]
 	if !ok {
@@ -287,7 +302,13 @@ func (c *Client) UpdateContact(params Params) (Contact, error) {
 	return contact, nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Delete contact.
+// See: https://docs.pushbullet.com/v2/contacts/
+//
+// Usage:
+//   contact, err := client.DeleteContact(client.Params{"iden": "0xyz")
+//
+// If no iden is passed a noIdenError is returned.
 func (c *Client) DeleteContact(params Params) error {
 	id, ok := params["iden"]
 	if !ok {
@@ -301,7 +322,11 @@ func (c *Client) DeleteContact(params Params) error {
 	return nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Get all devices.
+// See: https://docs.pushbullet.com/v2/devices/
+//
+// Usage:
+//   devices, err := client.GetDevices()
 func (c *Client) GetDevices() ([]Device, error) {
 	body, err := c.do("GET", apiEndpoints["devices"], nil)
 	if err != nil {
@@ -315,7 +340,11 @@ func (c *Client) GetDevices() ([]Device, error) {
 	return resultSet.Devices, nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Create device.
+// See: https://docs.pushbullet.com/v2/devices/
+//
+// Usage:
+//   device, err := client.CreateDevice(client.Params{"nickname": "foo", "type": "stream"})
 func (c *Client) CreateDevice(params Params) (Device, error) {
 	if _, ok := params["nickname"]; !ok {
 		return Device{}, errors.New("no nickname has been given")
@@ -339,7 +368,11 @@ func (c *Client) CreateDevice(params Params) (Device, error) {
 	return device, nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Update device.
+// See: https://docs.pushbullet.com/v2/devices/
+//
+// Usage:
+//   device, err := client.UpdateDevice(client.Params{"iden": "0xyz", "nickname": "foo"})
 func (c *Client) UpdateDevice(params Params) (Device, error) {
 	id, ok := params["iden"]
 	if !ok {
@@ -364,7 +397,13 @@ func (c *Client) UpdateDevice(params Params) (Device, error) {
 	return device, nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Delete device.
+// See: https://docs.pushbullet.com/v2/devices/
+//
+// Usage:
+//   err := client.DeleteDevice(client.Params{"iden": "0xyz"})
+
+// If no iden is provided a noIdenError is returned.
 func (c *Client) DeleteDevice(params Params) error {
 	id, ok := params["iden"]
 	if !ok {
@@ -378,7 +417,11 @@ func (c *Client) DeleteDevice(params Params) error {
 	return nil
 }
 
-//REVIEW
+// Get pushes.
+// See: https://docs.pushbullet.com/v2/pushes/
+//
+// Usage:
+//   pushes, err := client.GetPushes()
 func (c *Client) GetPushes() ([]Push, error) {
 	//TODO add params and allow modified_after
 	body, err := c.do("GET", apiEndpoints["pushes"], nil)
@@ -393,9 +436,14 @@ func (c *Client) GetPushes() ([]Push, error) {
 	return resultSet.Pushes, nil
 }
 
-var ()
-
-//DONE for note, link, address, checklist. Missing file implementation
+// Create push.
+// See: https://docs.pushbullet.com/v2/pushes/
+//
+// Usage:
+//   push, err := client.CreatePush(client.Params{"type": "link", "title": "baz"})
+//   push, err := client.CreatePush(client.Params{"type": "address", "address": "baz"})
+//   push, err := client.CreatePush(client.Params{"type": "list", "title": "titulo", "items": []string{"foo", "bar"}})
+//   push, err := client.CreatePush(client.Params{"type": "file", "file_name": "foo.text", "file_type": "text/plain"})
 func (c *Client) CreatePush(params Params) (Push, error) {
 	if _, ok := params["type"]; !ok {
 		return Push{}, pushNoTypeError
@@ -446,7 +494,13 @@ func (c *Client) CreatePush(params Params) (Push, error) {
 	return push, nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Update push.
+// See: https://docs.pushbullet.com/v2/pushes/
+//
+// Usage:
+//   push, err := client.UpdatePush(client.Params{"iden": "0xyz", "title": "foobaz"})
+//
+// If no iden is provided a noIdenError is returned.
 func (c *Client) UpdatePush(params Params) (Push, error) {
 	id, ok := params["iden"]
 	if !ok {
@@ -471,7 +525,13 @@ func (c *Client) UpdatePush(params Params) (Push, error) {
 	return push, nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Delete push.
+// See: https://docs.pushbullet.com/v2/pushes/
+//
+// Usage:
+//   push, err := client.DeletePush(client.Params{"iden": "0xyz"})
+//
+// If no iden is provided a noIdenError is returned.
 func (c *Client) DeletePush(params Params) error {
 	id, ok := params["iden"]
 	if !ok {
