@@ -38,6 +38,7 @@ var (
 	pushNoFileTypeError = errors.New("No filetype for push of type file")
 )
 
+// HttpError encapsulates HTTP request errors.
 type HttpError struct {
 	Status  int
 	Message string
@@ -47,6 +48,7 @@ func (e *HttpError) Error() string {
 	return fmt.Sprintf("Status: %d, Message: %s", e.Status, e.Message)
 }
 
+// Used for HTTP requests.
 func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, error) {
 	req, err := http.NewRequest(method, endpoint, body)
 	if err != nil {
@@ -87,7 +89,11 @@ func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, error) {
 	return nil, nil
 }
 
-// UPDATED - 12/2014 -> need new test
+// Get information about user.
+// See: https://api.pushbullet.com/v2/users/me
+//
+// Usage:
+//   user, err := client.GetMe()
 func (c *Client) GetMe() (User, error) {
 	body, err := c.do("GET", apiEndpoints["me"], nil)
 	if err != nil {
@@ -100,7 +106,15 @@ func (c *Client) GetMe() (User, error) {
 	return user, nil
 }
 
-//12/2014 - needing a review
+// Update information about user.
+// See: https://api.pushbullet.com/v2/users/me
+//
+// Usage:
+//   obj := make(map[string]client.Preferences)
+//   obj["preferences"] = client.Preferences{Social: false}
+//   user, err := client.UpdateMe(obj)
+
+// TODO: improve implementation
 func (c *Client) UpdateMe(params map[string]Preferences) (User, error) {
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
@@ -118,7 +132,15 @@ func (c *Client) UpdateMe(params map[string]Preferences) (User, error) {
 	return user, nil
 }
 
-// UPDATED - 12/2014 -> need new test
+// Subscribe to a channel.
+// See: https://api.pushbullet.com/v2/subscriptions
+
+// Usage:
+//   client.Subscribe(client.Params{
+//     "channel_tag": "jblow"
+//   })
+//
+// If no channel tag is passed a noChannelTagError will be returned.
 func (c *Client) Subscribe(params Params) (Subscription, error) {
 	if _, ok := params["channel_tag"]; !ok {
 		return Subscription{}, noChannelTagError
@@ -140,7 +162,6 @@ func (c *Client) Subscribe(params Params) (Subscription, error) {
 }
 
 //UPDATED - 12/2014 - need new test
-//UPDATED with new slice result
 func (c *Client) Subscriptions() ([]Subscription, error) {
 	body, err := c.do("GET", apiEndpoints["subscriptions"], nil)
 	if err != nil {
