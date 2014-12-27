@@ -40,26 +40,7 @@ func (e *HttpError) Error() string {
 	return fmt.Sprintf("Status: %d, Message: %s", e.Status, e.Message)
 }
 
-// WILL BE REMOVED
-func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, int, error) {
-	req, err := http.NewRequest(method, endpoint, body)
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	req.SetBasicAuth(c.token, "")
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.HttpClient.Do(req)
-	if err != nil {
-		log.Println(err)
-		return nil, -1, err
-	}
-	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
-	return data, resp.StatusCode, nil
-}
-
-func (c *Client) do2(method, endpoint string, body io.Reader) ([]byte, error) {
+func (c *Client) do(method, endpoint string, body io.Reader) ([]byte, error) {
 	req, err := http.NewRequest(method, endpoint, body)
 	if err != nil {
 		log.Println(err)
@@ -101,7 +82,7 @@ func (c *Client) do2(method, endpoint string, body io.Reader) ([]byte, error) {
 
 // UPDATED - 12/2014 -> need new test
 func (c *Client) GetMe() (User, error) {
-	body, err := c.do2("GET", apiEndpoints["me"], nil)
+	body, err := c.do("GET", apiEndpoints["me"], nil)
 	if err != nil {
 		return User{}, err
 	}
@@ -140,7 +121,7 @@ func (c *Client) Subscribe(params Params) (Subscription, error) {
 	if err != nil {
 		return Subscription{}, err
 	}
-	body, err := c.do2("POST", apiEndpoints["subscriptions"], bytes.NewBuffer(jsonParams))
+	body, err := c.do("POST", apiEndpoints["subscriptions"], bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Subscription{}, err
 	}
@@ -154,7 +135,7 @@ func (c *Client) Subscribe(params Params) (Subscription, error) {
 
 //UPDATED - 12/2014 - need new test
 func (c *Client) Subscriptions() (Subscriptions, error) {
-	body, err := c.do2("GET", apiEndpoints["subscriptions"], nil)
+	body, err := c.do("GET", apiEndpoints["subscriptions"], nil)
 	if err != nil {
 		return Subscriptions{}, err
 	}
@@ -173,7 +154,7 @@ func (c *Client) GetChannel(params Params) (Channel, error) {
 		return Channel{}, noChannelTagError
 	}
 	endpoint := fmt.Sprintf(apiEndpoints["channels"]+"?tag=%s", tag)
-	body, err := c.do2("GET", endpoint, nil)
+	body, err := c.do("GET", endpoint, nil)
 	if err != nil {
 		return Channel{}, err
 	}
@@ -192,7 +173,7 @@ func (c *Client) Unsubscribe(params Params) error {
 		return noIdenError
 	}
 	endpoint := fmt.Sprintf(apiEndpoints["subscriptions"]+"/%s", id)
-	_, err := c.do2("DELETE", endpoint, nil)
+	_, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
 		return err
 	}
@@ -201,7 +182,7 @@ func (c *Client) Unsubscribe(params Params) error {
 
 //UPDATED - 12/2014 - need new tests and review of active/non active contacts
 func (c *Client) GetContacts() (Contacts, error) {
-	body, err := c.do2("GET", apiEndpoints["contacts"], nil)
+	body, err := c.do("GET", apiEndpoints["contacts"], nil)
 	if err != nil {
 		return Contacts{}, err
 	}
@@ -225,7 +206,7 @@ func (c *Client) CreateContact(params Params) (Contact, error) {
 	if err != nil {
 		return Contact{}, err
 	}
-	body, err := c.do2("POST", apiEndpoints["contacts"], bytes.NewBuffer(jsonParams))
+	body, err := c.do("POST", apiEndpoints["contacts"], bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Contact{}, err
 	}
@@ -250,7 +231,7 @@ func (c *Client) UpdateContact(params Params) (Contact, error) {
 	if err != nil {
 		return Contact{}, err
 	}
-	body, err := c.do2("POST", endpoint, bytes.NewBuffer(jsonParams))
+	body, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Contact{}, err
 	}
@@ -269,7 +250,7 @@ func (c *Client) DeleteContact(params Params) error {
 		return noIdenError
 	}
 	endpoint := fmt.Sprintf(apiEndpoints["contacts"]+"/%s", id)
-	_, err := c.do2("DELETE", endpoint, nil)
+	_, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
 		return err
 	}
@@ -278,7 +259,7 @@ func (c *Client) DeleteContact(params Params) error {
 
 //UPDATED - 12/2014 - need new tests
 func (c *Client) GetDevices() (Devices, error) {
-	body, err := c.do2("GET", apiEndpoints["devices"], nil)
+	body, err := c.do("GET", apiEndpoints["devices"], nil)
 	if err != nil {
 		return Devices{}, err
 	}
@@ -302,7 +283,7 @@ func (c *Client) CreateDevice(params Params) (Device, error) {
 	if err != nil {
 		return Device{}, err
 	}
-	body, err := c.do2("POST", apiEndpoints["devices"], bytes.NewBuffer(jsonParams))
+	body, err := c.do("POST", apiEndpoints["devices"], bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Device{}, err
 	}
@@ -327,7 +308,7 @@ func (c *Client) UpdateDevice(params Params) (Device, error) {
 	if err != nil {
 		return Device{}, err
 	}
-	body, err := c.do2("POST", endpoint, bytes.NewBuffer(jsonParams))
+	body, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Device{}, err
 	}
@@ -346,7 +327,7 @@ func (c *Client) DeleteDevice(params Params) error {
 		return noIdenError
 	}
 	endpoint := fmt.Sprintf(apiEndpoints["devices"]+"/%s", id)
-	_, err := c.do2("DELETE", endpoint, nil)
+	_, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
 		return err
 	}
@@ -420,7 +401,7 @@ func (c *Client) UpdatePush(params Params) (Push, error) {
 	if err != nil {
 		return Push{}, err
 	}
-	body, err := c.do2("POST", endpoint, bytes.NewBuffer(jsonParams))
+	body, err := c.do("POST", endpoint, bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Push{}, err
 	}
@@ -439,7 +420,7 @@ func (c *Client) DeletePush(params Params) error {
 		return noIdenError
 	}
 	endpoint := fmt.Sprintf(apiEndpoints["pushes"]+"/%s", id)
-	_, err := c.do2("DELETE", endpoint, nil)
+	_, err := c.do("DELETE", endpoint, nil)
 	if err != nil {
 		return err
 	}
@@ -458,7 +439,7 @@ func (c *Client) uploadRequest(params Params) (UploadRequest, error) {
 	if err != nil {
 		return UploadRequest{}, err
 	}
-	body, err := c.do2("POST", apiEndpoints["upload_request"], bytes.NewBuffer(jsonParams))
+	body, err := c.do("POST", apiEndpoints["upload_request"], bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return UploadRequest{}, err
 	}
