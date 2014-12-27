@@ -91,20 +91,17 @@ func main() {
 	//newReq, err := cli.UploadRequest(client.Params{"file_name": "teste", "file_type": "text"})
 	//if err != nil {
 	//fmt.Println(err)
-	//	return
+	//return
 	//}
-	//err = cli.Upload2("teste.txt", "text/plain", "teste.txt")
+	//fmt.Println(newReq)
+	//fmt.Println(newReq.FileType)
+	//fmt.Println(newReq.FileName)
+	//fmt.Println(newReq.FileUrl)
+
+	//err = cli.Upload("teste.txt", "text/plain", "teste.txt")
 	//if err != nil {
 	//fmt.Println(err)
 	//return
 	//}
 	//fmt.Println("OK")
-	bla, err := cli.Subscriptions()
-	if err != nil {
-		fmt.Println("OOPS ", err)
-		return
-	}
-	for _, v := range bla {
-		fmt.Println(v)
-	}
 }

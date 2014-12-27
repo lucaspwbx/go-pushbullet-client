@@ -375,24 +375,46 @@ func (c *Client) CreatePush(params Params) (Push, error) {
 			return Push{}, pushNoItemsError
 		}
 	case "file":
-		if _, ok := params["file_url"]; !ok {
-			return Push{}, pushNoUrlError
+	}
+	if params["type"] == "link" || params["type"] == "address" || params["type"] == "list" {
+		jsonParams, err := json.Marshal(params)
+		if err != nil {
+			return Push{}, err
 		}
-	}
-	jsonParams, err := json.Marshal(params)
-	if err != nil {
-		return Push{}, err
-	}
-	body, err := c.do("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonParams))
-	if err != nil {
-		return Push{}, err
-	}
+		body, err := c.do("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonParams))
+		if err != nil {
+			return Push{}, err
+		}
 
-	var push Push
-	if err = json.Unmarshal(body, &push); err != nil {
-		return Push{}, err
+		var push Push
+		if err = json.Unmarshal(body, &push); err != nil {
+			return Push{}, err
+		}
+		return push, nil
+	} else {
+		filename := params["file_name"].(string)
+		filetype := params["file_type"].(string)
+		url, err := c.PushFile(filename, filetype, filename)
+		if err != nil {
+			fmt.Println(err)
+			return Push{}, err
+		}
+		params["file_url"] = url
+		jsonParams, err := json.Marshal(params)
+		if err != nil {
+			return Push{}, err
+		}
+		body, err := c.do("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonParams))
+		if err != nil {
+			return Push{}, err
+		}
+
+		var push Push
+		if err = json.Unmarshal(body, &push); err != nil {
+			return Push{}, err
+		}
+		return push, nil
 	}
-	return push, nil
 }
 
 //UPDATED - 12/2014 - need new tests
@@ -435,7 +457,7 @@ func (c *Client) DeletePush(params Params) error {
 }
 
 //UPDATED - 12/2014 - need new tests
-func (c *Client) uploadRequest(params Params) (UploadRequest, error) {
+func (c *Client) UploadRequest(params Params) (UploadRequest, error) {
 	if _, ok := params["file_name"]; !ok {
 		return UploadRequest{}, noFileNameError
 	}
@@ -459,17 +481,17 @@ func (c *Client) uploadRequest(params Params) (UploadRequest, error) {
 }
 
 //UPDATED - 12/2014 - need new tests
-func (c *Client) Upload(filename, filetype, path string) error {
-	req, err := c.uploadRequest(Params{
+func (c *Client) PushFile(filename, filetype, path string) (string, error) {
+	req, err := c.UploadRequest(Params{
 		"file_name": filename,
 		"file_type": filetype,
 	})
 	if err != nil {
-		return err
+		return "", err
 	}
 	file, err := os.Open(path)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer file.Close()
 
@@ -483,26 +505,27 @@ func (c *Client) Upload(filename, filetype, path string) error {
 	writer.WriteField("content-type", req.Data.ContentType)
 	part, err := writer.CreateFormFile("file", filepath.Base(path))
 	if err != nil {
-		return err
+		return "", err
 	}
 	if _, err = io.Copy(part, file); err != nil {
-		return err
+		return "", err
 	}
 	err = writer.Close()
 	if err != nil {
-		return err
+		return "", err
 	}
 	uploadReq, err := http.NewRequest("POST", req.UploadUrl, body)
 	uploadReq.Header.Set("Content-Type", writer.FormDataContentType())
 	if err != nil {
-		return err
+		return "", err
 	}
 	client := &http.Client{}
-	_, err = client.Do(uploadReq)
+	resp, err := client.Do(uploadReq)
 	if err != nil {
-		return err
+		return "", err
 	}
-	//data, _ := ioutil.ReadAll(resp.Body)
-	//fmt.Println(string(data))
-	return nil
+	if resp.StatusCode != http.StatusNoContent {
+		return "", errors.New("error uploading file")
+	}
+	return req.FileUrl, nil
 }
