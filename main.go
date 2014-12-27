@@ -99,4 +99,12 @@ func main() {
 	//return
 	//}
 	//fmt.Println("OK")
+	bla, err := cli.Subscriptions()
+	if err != nil {
+		fmt.Println("OOPS ", err)
+		return
+	}
+	for _, v := range bla {
+		fmt.Println(v)
+	}
 }

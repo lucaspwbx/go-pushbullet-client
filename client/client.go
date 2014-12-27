@@ -99,9 +99,8 @@ func (c *Client) UpdateMe(params map[string]Preferences) (User, error) {
 	if err != nil {
 		return User{}, err
 	}
-	body, _, err := c.do("POST", apiEndpoints["me"], bytes.NewBuffer(jsonParams))
+	body, err := c.do("POST", apiEndpoints["me"], bytes.NewBuffer(jsonParams))
 	if err != nil {
-		log.Println(err)
 		return User{}, err
 	}
 
@@ -134,17 +133,18 @@ func (c *Client) Subscribe(params Params) (Subscription, error) {
 }
 
 //UPDATED - 12/2014 - need new test
-func (c *Client) Subscriptions() (Subscriptions, error) {
+//UPDATED with new slice result
+func (c *Client) Subscriptions() ([]Subscription, error) {
 	body, err := c.do("GET", apiEndpoints["subscriptions"], nil)
 	if err != nil {
-		return Subscriptions{}, err
+		return nil, err
 	}
 
-	var subscriptions Subscriptions
-	if err = json.Unmarshal(body, &subscriptions); err != nil {
-		return Subscriptions{}, err
+	var resultSet Subscriptions
+	if err = json.Unmarshal(body, &resultSet); err != nil {
+		return nil, err
 	}
-	return subscriptions, nil
+	return resultSet.Subscriptions, nil
 }
 
 //UPDATED - 12/2014 - need new test
@@ -337,7 +337,7 @@ func (c *Client) DeleteDevice(params Params) error {
 //REVIEW
 func (c *Client) GetPushes() (Pushes, error) {
 	//TODO add params and allow modified_after
-	body, _, err := c.do("GET", apiEndpoints["pushes"], nil)
+	body, err := c.do("GET", apiEndpoints["pushes"], nil)
 	if err != nil {
 		return Pushes{}, err
 	}
@@ -376,7 +376,7 @@ func (c *Client) CreatePush(params Params) (Push, error) {
 	if err != nil {
 		return Push{}, err
 	}
-	body, _, err := c.do("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonParams))
+	body, err := c.do("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonParams))
 	if err != nil {
 		return Push{}, err
 	}
@@ -453,7 +453,7 @@ func (c *Client) uploadRequest(params Params) (UploadRequest, error) {
 
 //UPDATED - 12/2014 - need new tests
 func (c *Client) Upload(filename, filetype, path string) error {
-	req, err := c.UploadRequest(Params{
+	req, err := c.uploadRequest(Params{
 		"file_name": filename,
 		"file_type": filetype,
 	})
@@ -491,7 +491,7 @@ func (c *Client) Upload(filename, filetype, path string) error {
 		return err
 	}
 	client := &http.Client{}
-	resp, err := client.Do(uploadReq)
+	_, err = client.Do(uploadReq)
 	if err != nil {
 		return err
 	}
