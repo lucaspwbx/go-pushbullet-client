@@ -545,7 +545,11 @@ func (c *Client) DeletePush(params Params) error {
 	return nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Upload request.
+// See: https://docs.pushbullet.com/v2/upload-request/
+//
+// Usage:
+//   req, err := client.UploadRequest(client.Params{"file_name": "foo", "file_type": "text"})
 func (c *Client) UploadRequest(params Params) (UploadRequest, error) {
 	if _, ok := params["file_name"]; !ok {
 		return UploadRequest{}, noFileNameError
@@ -569,7 +573,11 @@ func (c *Client) UploadRequest(params Params) (UploadRequest, error) {
 	return uploadRequest, nil
 }
 
-//UPDATED - 12/2014 - need new tests
+// Push file.
+// See: https://docs.pushbullet.com/v2/pushes/
+//
+// Usage:
+//   fileUrl, err := client.PushFile("foo.txt", "text/plain", "foo.txt")
 func (c *Client) PushFile(filename, filetype, path string) (string, error) {
 	req, err := c.UploadRequest(Params{
 		"file_name": filename,
