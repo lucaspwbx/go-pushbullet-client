@@ -104,4 +104,14 @@ func main() {
 	//return
 	//}
 	//fmt.Println("OK")
+	push, err := cli.CreatePush(client.Params{
+		"type":      "file",
+		"file_name": "teste.txt",
+		"file_type": "text/plain",
+	})
+	if err != nil {
+		fmt.Println("ERRO: ", err)
+		return
+	}
+	fmt.Println(push)
 }

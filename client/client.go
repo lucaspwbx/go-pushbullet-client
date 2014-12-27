@@ -25,15 +25,17 @@ var (
 		"channels":       v2Api + "channel-info",
 		"upload_request": v2Api + "upload-request",
 	}
-	noChannelTagError  = errors.New("No channel tag parameter")
-	noIdenError        = errors.New("No iden parameter")
-	noFileNameError    = errors.New("No file name")
-	noFileTypeError    = errors.New("No file type")
-	pushNoLinkError    = errors.New("No link for push of type link")
-	pushNoAddressError = errors.New("No address for push of type address")
-	pushNoItemsError   = errors.New("No items for push of type checklist")
-	pushNoUrlError     = errors.New("No url for push of type file")
-	pushNoTypeError    = errors.New("No type error")
+	noChannelTagError   = errors.New("No channel tag parameter")
+	noIdenError         = errors.New("No iden parameter")
+	noFileNameError     = errors.New("No file name")
+	noFileTypeError     = errors.New("No file type")
+	pushNoLinkError     = errors.New("No link for push of type link")
+	pushNoAddressError  = errors.New("No address for push of type address")
+	pushNoItemsError    = errors.New("No items for push of type checklist")
+	pushNoUrlError      = errors.New("No url for push of type file")
+	pushNoTypeError     = errors.New("No type error")
+	pushNoFileNameError = errors.New("No filename for push of type file")
+	pushNoFileTypeError = errors.New("No filetype for push of type file")
 )
 
 type HttpError struct {
@@ -375,46 +377,36 @@ func (c *Client) CreatePush(params Params) (Push, error) {
 			return Push{}, pushNoItemsError
 		}
 	case "file":
+		if _, ok := params["file_name"]; !ok {
+			return Push{}, pushNoFileNameError
+		}
+		if _, ok := params["file_type"]; !ok {
+			return Push{}, pushNoFileTypeError
+		}
 	}
-	if params["type"] == "link" || params["type"] == "address" || params["type"] == "list" {
-		jsonParams, err := json.Marshal(params)
-		if err != nil {
-			return Push{}, err
-		}
-		body, err := c.do("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonParams))
-		if err != nil {
-			return Push{}, err
-		}
-
-		var push Push
-		if err = json.Unmarshal(body, &push); err != nil {
-			return Push{}, err
-		}
-		return push, nil
-	} else {
+	if params["type"] == "file" {
 		filename := params["file_name"].(string)
 		filetype := params["file_type"].(string)
 		url, err := c.PushFile(filename, filetype, filename)
 		if err != nil {
-			fmt.Println(err)
 			return Push{}, err
 		}
 		params["file_url"] = url
-		jsonParams, err := json.Marshal(params)
-		if err != nil {
-			return Push{}, err
-		}
-		body, err := c.do("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonParams))
-		if err != nil {
-			return Push{}, err
-		}
-
-		var push Push
-		if err = json.Unmarshal(body, &push); err != nil {
-			return Push{}, err
-		}
-		return push, nil
 	}
+	jsonParams, err := json.Marshal(params)
+	if err != nil {
+		return Push{}, err
+	}
+	body, err := c.do("POST", apiEndpoints["pushes"], bytes.NewBuffer(jsonParams))
+	if err != nil {
+		return Push{}, err
+	}
+
+	var push Push
+	if err = json.Unmarshal(body, &push); err != nil {
+		return Push{}, err
+	}
+	return push, nil
 }
 
 //UPDATED - 12/2014 - need new tests
