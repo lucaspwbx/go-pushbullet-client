@@ -181,17 +181,17 @@ func (c *Client) Unsubscribe(params Params) error {
 }
 
 //UPDATED - 12/2014 - need new tests and review of active/non active contacts
-func (c *Client) GetContacts() (Contacts, error) {
+func (c *Client) GetContacts() ([]Contact, error) {
 	body, err := c.do("GET", apiEndpoints["contacts"], nil)
 	if err != nil {
-		return Contacts{}, err
+		return nil, err
 	}
 
-	var contacts Contacts
-	if err = json.Unmarshal(body, &contacts); err != nil {
-		return Contacts{}, err
+	var resultSet Contacts
+	if err = json.Unmarshal(body, &resultSet); err != nil {
+		return nil, err
 	}
-	return contacts, nil
+	return resultSet.Contacts, nil
 }
 
 //UPDATED - 12/2014 - need new tests
@@ -258,17 +258,17 @@ func (c *Client) DeleteContact(params Params) error {
 }
 
 //UPDATED - 12/2014 - need new tests
-func (c *Client) GetDevices() (Devices, error) {
+func (c *Client) GetDevices() ([]Device, error) {
 	body, err := c.do("GET", apiEndpoints["devices"], nil)
 	if err != nil {
-		return Devices{}, err
+		return nil, err
 	}
 
-	var devices Devices
-	if err = json.Unmarshal(body, &devices); err != nil {
-		return Devices{}, err
+	var resultSet Devices
+	if err = json.Unmarshal(body, &resultSet); err != nil {
+		return nil, err
 	}
-	return devices, nil
+	return resultSet.Devices, nil
 }
 
 //UPDATED - 12/2014 - need new tests
@@ -335,18 +335,18 @@ func (c *Client) DeleteDevice(params Params) error {
 }
 
 //REVIEW
-func (c *Client) GetPushes() (Pushes, error) {
+func (c *Client) GetPushes() ([]Push, error) {
 	//TODO add params and allow modified_after
 	body, err := c.do("GET", apiEndpoints["pushes"], nil)
 	if err != nil {
-		return Pushes{}, err
+		return nil, err
 	}
 
-	var pushes Pushes
-	if err = json.Unmarshal(body, &pushes); err != nil {
-		return Pushes{}, err
+	var resultSet Pushes
+	if err = json.Unmarshal(body, &resultSet); err != nil {
+		return nil, err
 	}
-	return pushes, nil
+	return resultSet.Pushes, nil
 }
 
 //DONE for note, link, address, checklist. Missing file implementation
