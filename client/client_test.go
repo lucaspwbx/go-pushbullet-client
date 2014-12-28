@@ -117,6 +117,38 @@ func TestSubscribeChannel(t *testing.T) {
 	}
 }
 
+func TestGetChannelNoChannel(t *testing.T) {
+	fakeRT := &FakeRoundTripper{message: "", status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	_, err := client.GetChannel(Params{})
+	if err != noChannelTagError {
+		t.Errorf("Error, expected %#v, got %#v", noChannelTagError.Error(), err)
+	}
+}
+
+func TestGetChannel(t *testing.T) {
+	body := `
+	{
+	  "iden": "ujxPklLhvyKsjAvkMyTVh6",
+	  "tag": "jblow",
+	  "name": "Jonathan Blow",
+	  "description": "New comments on the web by Jonathan Blow.",
+	  "image_url": "https://pushbullet.imgix.net/ujxPklLhvyK-6fXf4O2JQ1dBKQedhypIKwPX0lyFfwXW/jonathan-blow.png"
+	}
+	`
+	var expected Channel
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshaling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.GetChannel(Params{"tag": "jblow"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
 func TestGetDevices(t *testing.T) {
 	body :=
 		`
