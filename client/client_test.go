@@ -42,6 +42,39 @@ func (rt *FakeRoundTripper) Reset() {
 	rt.requests = nil
 }
 
+func TestGetMe(t *testing.T) {
+	body := `
+	{
+	  "iden": "ubdpjxxxOK0sKG",
+	  "email": "ryan@pushbullet.com",
+	  "email_normalized": "ryan@pushbullet.com",
+	  "created": 1357941753.8287899,
+	  "modified": 1399325992.1842301,
+	  "name": "Ryan Oldenburg",
+	  "image_url": "https://lh4.googleusercontent.com/-YGdcF2MteeI/AAAAAAAAAAI/AAAAAAAADPU/uo9z33FoEYs/photo.jpg",
+	  "preferences": {
+	    "onboarding": {
+	      "app": false,
+	      "friends": false,
+	      "extension": false
+	    },
+	    "social": false
+	  }
+	}
+    `
+	var expected User
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshaling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.GetMe()
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
 func TestGetDevices(t *testing.T) {
 	body :=
 		`
@@ -67,7 +100,7 @@ func TestGetDevices(t *testing.T) {
 	var expected Devices
 	err := json.Unmarshal([]byte(body), &expected)
 	if err != nil {
-		t.Errorf("Error unmarshalling JSON")
+		t.Errorf("Error unmarshaling JSON")
 	}
 	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
 	client := newTestClient(fakeRT)
