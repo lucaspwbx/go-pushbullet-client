@@ -149,6 +149,24 @@ func TestGetChannel(t *testing.T) {
 	}
 }
 
+func TestUnsubscribeNoIden(t *testing.T) {
+	fakeRT := &FakeRoundTripper{message: "", status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	err := client.Unsubscribe(Params{})
+	if err != noIdenError {
+		t.Errorf("Error, expected %#v, got %#v", noIdenError, err)
+	}
+}
+
+func TestUnsubscribe(t *testing.T) {
+	fakeRT := &FakeRoundTripper{message: "", status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	err := client.Unsubscribe(Params{"iden": "0xyz"})
+	if err != nil {
+		t.Errorf("Expected no error, got %#v", err)
+	}
+}
+
 func TestGetDevices(t *testing.T) {
 	body :=
 		`
