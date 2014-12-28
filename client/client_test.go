@@ -75,6 +75,48 @@ func TestGetMe(t *testing.T) {
 	}
 }
 
+// TODO
+func TestUpdateMe(t *testing.T) {
+}
+
+func TestSubscribeNoChannelTag(t *testing.T) {
+	fakeRT := &FakeRoundTripper{message: "", status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	_, err := client.Subscribe(Params{})
+	if err != noChannelTagError {
+		t.Errorf("Error, expected %#v, got %#v", noChannelTagError.Error(), err)
+	}
+}
+
+func TestSubscribeChannel(t *testing.T) {
+	body := `
+	{
+	  "iden": "udprOsjAoRtnM0jc",
+	  "created": 1412047948.579029,
+	  "modified": 1412047948.5790315,
+	  "active": true,
+	  "channel": {
+	    "iden": "ujxPklLhvyKsjAvkMyTVh6",
+	    "tag": "jblow",
+	    "name": "Jonathan Blow",
+	    "description": "New comments on the web by Jonathan Blow.",
+	    "image_url": "https://pushbullet.imgix.net/ujxPklLhvyK-6fXf4O2JQ1dBKQedhypIKwPX0lyFfwXW/jonathan-blow.png"
+	  }
+	}
+	`
+	var expected Subscription
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshaling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.Subscribe(Params{"channel_tag": "jblow"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
 func TestGetDevices(t *testing.T) {
 	body :=
 		`
