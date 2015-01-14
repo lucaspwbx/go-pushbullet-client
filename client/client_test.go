@@ -167,6 +167,114 @@ func TestUnsubscribe(t *testing.T) {
 	}
 }
 
+func TestGetContacts(t *testing.T) {
+	body := `
+	{
+	    "contacts": [
+	        {
+		  "iden": "ubdcjAfszs0Smi",
+		  "name": "Ryan Oldenburg",
+		  "created": 1399011660.4298899,
+		  "modified": 1399011660.42976,
+		  "email": "ryanjoldenburg@gmail.com",
+		  "email_normalized": "ryanjoldenburg@gmail.com",
+		  "active": true
+		}
+		]
+	      }
+	      `
+	var expected Contacts
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshaling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.GetContacts()
+	if !reflect.DeepEqual(got, expected.Contacts) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
+func TestCreateContactError(t *testing.T) {
+	client := Client{}
+	_, err := client.CreateContact(Params{})
+	if err.Error() != "no name has been given" {
+		t.Errorf("Error, expected no name has been given, got %#v", err)
+	}
+	_, err = client.CreateContact(Params{"name": "foo"})
+	if err.Error() != "no email has been given" {
+		t.Errorf("Error, expected no email has been given, got %#v", err)
+	}
+}
+
+func TestCreateContact(t *testing.T) {
+	body := `
+	{
+	  "iden": "ubdcjAfszs0Smi",
+	  "name": "Ryan Oldenburg",
+	  "created": 1399011660.4298899,
+	  "modified": 1399011660.42976,
+	  "email": "ryanjoldenburg@gmail.com",
+	  "email_normalized": "ryanjoldenburg@gmail.com",
+	  "active": true
+	}
+  `
+	var expected Contact
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshaling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.CreateContact(Params{"name": "foo", "email": "bar"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
+func TestUpdateContactError(t *testing.T) {
+	client := Client{}
+	_, err := client.UpdateContact(Params{})
+	if err != noIdenError {
+		t.Errorf("Error, expected noIdenError, got %#v", err)
+	}
+}
+
+func TestUpdateContact(t *testing.T) {
+	body := `
+	{
+	  "iden": "ubdcjAfszs0Smi",
+	  "name": "Ryan Oldenburg",
+	  "created": 1399011660.4298899,
+	  "modified": 1399011660.42976,
+	  "email": "ryanjoldenburg@gmail.com",
+	  "email_normalized": "ryanjoldenburg@gmail.com",
+	  "active": true
+	}
+  `
+	var expected Contact
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshaling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.UpdateContact(Params{"iden": "0xyz", "email": "bar"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
+func TestDeleteContact(t *testing.T) {
+	fakeRT := &FakeRoundTripper{message: "", status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	err := client.DeleteContact(Params{"iden": "0xyz"})
+	if err != nil {
+		t.Errorf("Error, expected nil, got %#v", err)
+	}
+}
+
 func TestGetDevices(t *testing.T) {
 	body :=
 		`
