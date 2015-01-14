@@ -443,7 +443,7 @@ func (c *Client) GetPushes() ([]Push, error) {
 //   push, err := client.CreatePush(client.Params{"type": "link", "title": "baz"})
 //   push, err := client.CreatePush(client.Params{"type": "address", "address": "baz"})
 //   push, err := client.CreatePush(client.Params{"type": "list", "title": "titulo", "items": []string{"foo", "bar"}})
-//   push, err := client.CreatePush(client.Params{"type": "file", "file_name": "foo.text", "file_type": "text/plain"})
+//   push, err := client.CreatePush(client.Params{"type": "file", "file_name": "foo.txt", "file_type": "text/plain"})
 func (c *Client) CreatePush(params Params) (Push, error) {
 	if _, ok := params["type"]; !ok {
 		return Push{}, pushNoTypeError

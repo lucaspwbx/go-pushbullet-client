@@ -433,3 +433,31 @@ func TestGetPushes(t *testing.T) {
 		t.Errorf("Error, expected %#v, got %#v", expected, got)
 	}
 }
+
+func TestCreatePushError(t *testing.T) {
+	client := Client{}
+	_, err := client.CreatePush(Params{})
+	if err != pushNoTypeError {
+		t.Errorf("Expected %#v, got %#v", pushNoTypeError, err)
+	}
+	_, err = client.CreatePush(Params{"type": "link"})
+	if err != pushNoLinkError {
+		t.Errorf("Expected %#v, got %#v", pushNoLinkError, err)
+	}
+	_, err = client.CreatePush(Params{"type": "address"})
+	if err != pushNoAddressError {
+		t.Errorf("Expected %#v, got %#v", pushNoAddressError, err)
+	}
+	_, err = client.CreatePush(Params{"type": "list"})
+	if err != pushNoItemsError {
+		t.Errorf("Expected %#v, got %#v", pushNoItemsError, err)
+	}
+	_, err = client.CreatePush(Params{"type": "file"})
+	if err != pushNoFileNameError {
+		t.Errorf("Expected %#v, got %#v", pushNoFileNameError, err)
+	}
+	_, err = client.CreatePush(Params{"type": "file", "file_name": "foo.txt"})
+	if err != pushNoFileTypeError {
+		t.Errorf("Expected %#v, got %#v", pushNoFileTypeError, err)
+	}
+}
