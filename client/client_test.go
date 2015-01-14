@@ -309,3 +309,90 @@ func TestGetDevices(t *testing.T) {
 		t.Errorf("Error, expected %#v, got %#v", expected, got)
 	}
 }
+
+func TestCreateDeviceError(t *testing.T) {
+	client := Client{}
+	_, err := client.CreateDevice(Params{})
+	if err.Error() != "no nickname has been given" {
+		t.Errorf("Error, expected no nickname has been given, got %#v", err)
+	}
+	_, err = client.CreateDevice(Params{"nickname": "foo"})
+	if err.Error() != "no type has been given" {
+		t.Errorf("Error, expected no type has been given, got %#v", err)
+	}
+}
+
+func TestCreateDevice(t *testing.T) {
+	body := `
+	{
+	  "iden": "udm0Tdjz5A7bL4NM",
+	  "nickname": "stream_device",
+	  "created": 1401840789.2369599,
+	  "modified": 1401840789.2369699,
+	  "active": true,
+	  "type": "stream",
+	  "pushable": true
+	}
+  `
+	var expected Device
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshaling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.CreateDevice(Params{"nickname": "foo", "type": "stream"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
+func TestUpdateDeviceError(t *testing.T) {
+	client := Client{}
+	_, err := client.UpdateDevice(Params{})
+	if err != noIdenError {
+		t.Errorf("Expected %#v, got %#v", noIdenError, err)
+	}
+}
+
+func TestUpdateDevice(t *testing.T) {
+	body := `
+	{
+	  "iden": "udm0Tdjz5A7bL4NM",
+	  "nickname": "stream_device",
+	  "created": 1401840789.2369599,
+	  "modified": 1401840789.2369699,
+	  "active": true,
+	  "type": "stream",
+	  "pushable": true
+	}
+  `
+	var expected Device
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshaling JSON")
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.UpdateDevice(Params{"iden": "0xyz", "nickname": "bar"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Error, expected %#v, got %#v", expected, got)
+	}
+}
+
+func TestDeleteDeviceError(t *testing.T) {
+	client := Client{}
+	err := client.DeleteDevice(Params{})
+	if err != noIdenError {
+		t.Errorf("Expected %#v, got %#v", noIdenError, err)
+	}
+}
+
+func TestDeleteDevice(t *testing.T) {
+	fakeRT := &FakeRoundTripper{message: "", status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	err := client.DeleteDevice(Params{"iden": "0xyz"})
+	if err != nil {
+		t.Errorf("Error, expected nil, got %#v", err)
+	}
+}
