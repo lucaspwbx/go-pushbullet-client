@@ -461,3 +461,89 @@ func TestCreatePushError(t *testing.T) {
 		t.Errorf("Expected %#v, got %#v", pushNoFileTypeError, err)
 	}
 }
+
+func TestCreatePushNote(t *testing.T) {
+	body := `
+	{
+	  "iden": "ubdpj29aOK0sKG",
+	  "type": "note",
+	  "title": "Note Title",
+	  "body": "Note Body",
+	  "created": 1399253701.9744401,
+	  "modified": 1399253701.9746201,
+	  "active": true,
+	  "dismissed": false,
+	  "sender_iden": "ubd",
+	  "sender_email": "ryan@pushbullet.com",
+	  "sender_email_normalized": "ryan@pushbullet.com",
+	  "receiver_iden": "ubd",
+	  "receiver_email": "ryan@pushbullet.com",
+	  "receiver_email_normalized": "ryan@pushbullet.com"
+	}
+  `
+	var expected Push
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshaling JSON", err)
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.CreatePush(Params{"type": "note"})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %#v, got %#v", expected, got)
+	}
+	if got.Type != "note" {
+		t.Errorf("Got %#v, expected note", got.Type)
+	}
+}
+
+func TestCreatePushList(t *testing.T) {
+	body := `
+	{
+	  "iden": "ubdpjAkaGXvUl2",
+	  "type": "list",
+	  "title": "foo",
+	  "items": ["foo"],
+	  "created": 1411595195.1267679,
+	  "modified": 1411595195.1268303,
+	  "active": true,
+	  "dismissed": false,
+	  "sender_iden": "ubd",
+	  "sender_email": "ryan@pushbullet.com",
+	  "sender_email_normalized": "ryan@pushbullet.com",
+	  "receiver_iden": "ubd",
+	  "receiver_email": "ryan@pushbullet.com",
+	  "receiver_email_normalized": "ryan@pushbullet.com"
+	}
+  `
+	var expected Push
+	err := json.Unmarshal([]byte(body), &expected)
+	if err != nil {
+		t.Errorf("Error unmarshaling JSON", err)
+	}
+	fakeRT := &FakeRoundTripper{message: body, status: http.StatusOK}
+	client := newTestClient(fakeRT)
+	got, _ := client.CreatePush(Params{"type": "list",
+		"title": "foo",
+		"items": []string{"foo"}})
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %#v, got %#v", expected, got)
+	}
+	if got.Type != "list" {
+		t.Errorf("Got %#v, expected note", got.Type)
+	}
+	if got.Title != "foo" {
+		t.Errorf("Got %#v, expected foo", got.Title)
+	}
+	//if len(got.Items) != 1 {
+	//t.Errorf("Error")
+	//}
+}
+
+func TestCreatePushLink(t *testing.T) {
+
+}
+
+func TestCreatePushFile(t *testing.T) {
+
+}
